@@ -1,0 +1,43 @@
+# --- Secrets & credentials ---
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*credentials*
+*secret*
+*.token
+config.local.*
+
+# --- Company-specific / real connection details ---
+# If you ever save a real connection string or profile config, name it with
+# a "company" marker so it never gets committed by accident.
+*company-internal*
+*.company.*
+db_query.json
+
+# --- Data files (never commit real or company data) ---
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.db
+*.sqlite
+/data/
+/exports/
+
+# --- Notebook outputs (can leak query results / data samples) ---
+.ipynb_checkpoints/
+# Consider stripping notebook output cells before commit (see README)
+
+# --- OS / editor junk ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+venv/

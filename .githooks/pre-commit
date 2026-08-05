@@ -1,0 +1,16 @@
+#!/bin/sh
+# Blocks commits that contain secrets or company-specific identifiers.
+# Installed via: git config core.hooksPath .githooks
+
+echo "Running gitleaks scan on staged changes..."
+gitleaks protect --staged --config .gitleaks.toml --redact -v
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "COMMIT BLOCKED: gitleaks found a potential secret or company-specific term."
+  echo "Review the findings above. If it's a false positive, adjust .gitleaks.toml."
+  exit 1
+fi
+
+echo "gitleaks scan passed."
+exit 0

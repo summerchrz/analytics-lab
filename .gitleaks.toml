@@ -1,0 +1,38 @@
+title = "gitleaks config for personal knowledge repo"
+
+# Start from gitleaks' default rule set (API keys, tokens, private keys, etc.)
+[extend]
+useDefault = true
+
+# Extra rules to catch company-specific identifiers that aren't "secrets"
+# in the classic sense but still shouldn't appear in a personal repo.
+[[rules]]
+id = "hertz-mention"
+description = "Mentions of Hertz or company-internal terms"
+regex = '''(?i)hertz'''
+tags = ["company-specific"]
+
+[[rules]]
+id = "internal-hostname"
+description = "Internal/corporate hostnames or domains"
+regex = '''(?i)([a-z0-9-]+\.)?hertz\.(net|com)'''
+tags = ["company-specific"]
+
+[[rules]]
+id = "databricks-warehouse-id"
+description = "Databricks warehouse ID pattern (hex string, common in company scripts)"
+regex = '''warehouse_id["'\s:=]+["']?[0-9a-f]{16}["']?'''
+tags = ["company-specific"]
+
+[[rules]]
+id = "email-corporate"
+description = "Corporate email addresses"
+regex = '''[A-Za-z0-9._%+-]+@hertz\.(net|com)'''
+tags = ["company-specific"]
+
+[allowlist]
+description = "Allow this config file itself to mention the word hertz/warehouse_id as examples"
+paths = [
+  '''\.gitleaks\.toml''',
+  '''README\.md''',
+]
