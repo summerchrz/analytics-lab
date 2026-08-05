@@ -1,4 +1,4 @@
-# Personal Knowledge Repository
+# analytics-lab
 
 A personal, company-agnostic collection of SQL patterns, Python scripts, and
 learning notes built while growing into analytics engineering (Databricks,

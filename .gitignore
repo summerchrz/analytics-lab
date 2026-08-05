@@ -1,6 +1,7 @@
 # --- Secrets & credentials ---
 .env
 .env.*
+.envrc
 *.pem
 *.key
 *.pfx
@@ -8,6 +9,8 @@
 *secret*
 *.token
 config.local.*
+.pypirc
+.streamlit/secrets.toml
 
 # --- Company-specific / real connection details ---
 # If you ever save a real connection string or profile config, name it with
@@ -23,6 +26,7 @@ db_query.json
 *.parquet
 *.db
 *.sqlite
+*.sqlite3
 /data/
 /exports/
 
@@ -35,9 +39,72 @@ db_query.json
 Thumbs.db
 .vscode/
 .idea/
+.spyderproject
+.spyproject
+.ropeproject
 
 # --- Python ---
 __pycache__/
-*.pyc
+*.py[codz]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+cython_debug/
+tempCodeRunnerFile.py
+
+# --- Virtual environments ---
 .venv/
 venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Jupyter / IPython ---
+profile_default/
+ipython_config.py
+
+# --- Framework-specific ---
+local_settings.py
+instance/
+.webassets-cache
+.scrapy
+docs/_build/
