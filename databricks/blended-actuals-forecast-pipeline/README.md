@@ -109,6 +109,33 @@ Ran end-to-end against a live Databricks SQL warehouse:
 - Validation 3 / Bug 2: `QTY Adj` rows (`40.0`, `25.0`) confirmed present with
   `activity_date = NULL`, confirming they never reach the final table.
 
+## `pipeline_fixed.sql` — Proposed Fix (also verified)
+
+Same two sources, same scenario, three structural changes instead of just
+"fix the CASE statements":
+
+1. **One shared `month_label_lookup` table** both sources join against,
+   instead of two independently hand-written `CASE` statements that can
+   drift apart. Adding a new label variant is an `INSERT`, not a code change
+   in two places. Labels are matched after `TRIM()`, so whitespace
+   inconsistency alone can't cause a silent miss.
+2. **Non-monthly columns excluded from `UNPIVOT` explicitly** and handled as
+   their own honestly-named metric (`"... - Annual Adjustment"`), dated at
+   year-end — never a candidate for silently becoming "December."
+3. **An explicit unmapped-label check that runs first** and is meant to be
+   asserted as empty before trusting anything downstream, replacing reliance
+   on `try_to_date`'s silent `NULL` on failure.
+
+Verified results: `unmapped_count = 0`; December for both warehouses back to
+the real monthly figures (`1750.0`, `1180.0`); all four annual/adjustment
+values (`18500.0`, `12730.0`, `40.0`, `25.0`) present under their own
+metric name — nothing lost, nothing blended into the wrong bucket.
+
+**Trade-off worth naming**: the fixed version requires maintaining the
+`month_label_lookup` table as new label variants appear upstream. That's a
+real, ongoing cost — but it's a visible, one-place cost instead of an
+invisible, N-places one, which is the actual point of the fix.
+
 ## Decision Summary
 
 - **Problem**: A real multi-source reporting notebook mixed unpivoting, date

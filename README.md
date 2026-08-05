@@ -13,6 +13,19 @@ Python, automation) — a companion to Coursera/self-study work.
   SQL warehouses, notebooks) using synthetic or public sample data only
 - `learning-notes/` — write-ups, decision logs, and concepts learned along the way
 
+## Pattern Index
+
+| Pattern | Location | What it demonstrates |
+|---|---|---|
+| Blended actuals + forecast reporting pipeline | [`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline) | Wide-to-long `UNPIVOT` + label normalization, `CASE`-based categorization, canonical schema alignment via `UNION ALL`, actuals/forecast cutoff blending. Includes a deliberately buggy version (annual-column bleed + silent NULL-drop, both verified) and a proposed fixed version (shared lookup table, verified). |
+| Unpivoting named measures with `LATERAL VIEW STACK` | [`databricks/lateral-view-stack-unpivot`](databricks/lateral-view-stack-unpivot) | When to use `STACK` vs. `UNPIVOT`; pitfalls of the `STACK(n, ...)` count parameter. |
+| Point-in-time "active as of" count | [`databricks/point-in-time-active-count`](databricks/point-in-time-active-count) | Counting active items from a periodic snapshot table; the critical assumption that makes the formula correct (snapshot vs. event-log source shape). |
+
+Each pattern folder is self-contained and runnable standalone (inline
+synthetic data via `VALUES`, no external tables) and includes a README with
+the pattern explanation, when to use it, common pitfalls, and a verification
+note confirming it was actually run against a live Databricks SQL warehouse.
+
 ## Content Rules (read before committing)
 
 This repo must never contain:
