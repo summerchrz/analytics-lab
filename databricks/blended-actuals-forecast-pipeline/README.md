@@ -9,14 +9,21 @@ Fully self-contained — `pipeline.sql` uses only inline synthetic data
 (`VALUES`), so it runs standalone in any Databricks SQL warehouse or notebook
 with no external tables or files required.
 
+**This version intentionally keeps two real bugs from the source material
+instead of quietly fixing them** — see "Deliberately Preserved Bugs" below.
+The point is to see how ambiguity in upstream data actually propagates
+through a transform like this, not to show an idealized version that never
+existed.
+
 ## The Pattern
 
 1. **Wide-to-long UNPIVOT with label normalization** — real-world spreadsheet
    exports rarely have clean, consistent column names (extra spaces,
-   abbreviation mismatches like "Sept" vs "Sep"). Normalize explicitly with a
-   `CASE` mapping that fails loudly (`NULL`) on anything unrecognized, rather
-   than silently mis-parsing.
-2. **Category derivation via `CASE WHEN`** — when a second source arrives at a
+   abbreviation mismatches like "Sept" vs "Sep"). Two "twin" sources
+   (Source A, Source B) simulate two different teams/systems each unpivoting
+   the same *kind* of data with a different, incompatible label convention
+   and no shared contract between them.
+2. **Category derivation via `CASE WHEN`** — when a third source arrives at a
    different grain (e.g. a daily event log instead of a monthly rollup),
    classify and aggregate it up to the same grain before combining.
 3. **Canonical schema alignment** — every source is projected to the exact
@@ -26,10 +33,39 @@ with no external tables or files required.
    than scattering date logic across the pipeline, one `params` view holds the
    cutoff date and active forecast scenario. This makes the actuals/forecast
    boundary auditable in one place and avoids double-counting.
-5. **Validation as a first-class step** — the last query checks that actuals
-   and forecast meet cleanly at the cutoff with no gap or overlap. Always
-   include this when doing a blend like this; it's the check that would have
-   caught a double-count or a missing month immediately.
+5. **Validation as a first-class step, run against real behavior, not
+   assumptions** — three separate validation queries: cutoff boundary
+   integrity, a check for suspiciously large values, and an explicit
+   NULL-date audit. All three are necessary; none of them would be triggered
+   by a schema check or a "does it run" smoke test.
+
+## Deliberately Preserved Bugs (verified against a live warehouse)
+
+**Bug 1 — an annual total column gets treated as a 13th month.** Source A's
+wide table includes a `Value` column (an annual total sitting next to the 12
+monthly columns — extremely common in hand-maintained spreadsheets). The
+`CASE` statement maps `'Value' -> '12'`, so it gets summed straight into
+December. Verified result: Warehouse A's December "Orders Shipped" comes out
+as `20250.0` — the real December figure (`1750`) plus the entire annual total
+(`18500`) folded in on top of it.
+
+**Bug 2 — the same conceptual column silently vanishes in a sibling table.**
+Source B has the equivalent extra column, but it's named `QTY Adj` instead of
+`Value`, and nobody updated Source B's `CASE` statement to handle it. It falls
+through to `ELSE '0'`, which isn't a valid two-digit month, so
+`try_to_date(...)` returns `NULL` — and the row is silently dropped by the
+`WHERE activity_date < cutoff_date` filter later on (NULL comparisons are
+neither true nor false). Verified result: `QTY Adj` values (`40.0`, `25.0`)
+never appear anywhere in `blended_kpi_reporting` — no error, no warning, just
+missing data. Validation 3 in `pipeline.sql` surfaces exactly these rows by
+checking for `activity_date IS NULL` *before* the cutoff filter runs.
+
+The lesson: **two independently-written normalizations of "the same kind of
+column" produced two different failure modes** (silent miscalculation vs.
+silent omission) for what was structurally the same underlying problem — an
+extra column nobody accounted for. Neither failure throws an error. Both are
+only catchable by validating actual output values, not by checking that the
+query runs successfully.
 
 ## When to Use This
 
@@ -44,8 +80,17 @@ with no external tables or files required.
 
 - **Silent month-label mis-mapping**: if the `CASE` normalization doesn't
   cover every label variant present in the source, rows silently disappear
-  (via `NULL` dates) rather than erroring. Always run the validation step and
-  check row counts against the source, not just the final output.
+  (via `NULL` dates) rather than erroring — see Bug 2 above for a concrete,
+  verified example. Always run a NULL-date audit, not just a row-count check.
+- **"Extra column" columns get UNPIVOTed too**: any non-monthly column left in
+  a wide table (annual totals, YTD, adjustments) will get treated as a month
+  by an UNPIVOT unless it's excluded up front — see Bug 1 above. Prefer
+  explicitly listing only the true monthly columns in `UNPIVOT (... IN (...))`
+  over assuming "everything except the known ID columns" is safe.
+- **Two "twin" sources drift independently**: when the same kind of
+  transformation is written more than once (once per source system), nothing
+  keeps them consistent. Consider a single shared normalization function/UDF
+  instead of copy-pasting the `CASE` statement per source.
 - **Double-counting at the cutoff boundary**: if the actuals filter uses `<=`
   and the forecast filter uses `>=` the same cutoff date, you'll double-count
   that month. Use a consistent, mutually exclusive boundary (`<` / `>=` as
@@ -56,9 +101,13 @@ with no external tables or files required.
 
 ## Verified
 
-Ran end-to-end against a live Databricks SQL warehouse. Validation output
-confirmed actuals sources end at `2025-11-01` and forecast starts exactly at
-the `2025-12-01` cutoff, with no overlapping or missing months.
+Ran end-to-end against a live Databricks SQL warehouse:
+- Validation 1: actuals sources end at `2025-11-01`, forecast starts exactly
+  at the `2025-12-01` cutoff, no overlapping or missing months.
+- Validation 2 / Bug 1: December totals confirmed inflated by the exact
+  annual-total amount (`20250.0` and `13910.0`, matching the math above).
+- Validation 3 / Bug 2: `QTY Adj` rows (`40.0`, `25.0`) confirmed present with
+  `activity_date = NULL`, confirming they never reach the final table.
 
 ## Decision Summary
 
