@@ -15,6 +15,46 @@ Python, automation) — a companion to Coursera/self-study work.
 
 ## Pattern Index
 
+### Start Here — What Each Pattern Actually Does
+
+**[`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline)**
+Takes several differently-shaped data sources and merges them into one clean,
+long-format reporting table — using real actuals for past months and
+forecast numbers for future months, with a single date deciding where the
+switch happens. Two wide, spreadsheet-style tables get flattened into rows,
+their inconsistent month labels get mapped to real dates, a third daily-log
+source gets rolled up to match, and everything lands in one shared table via
+`UNION ALL`. This one deliberately keeps two real bugs instead of hiding
+them: an annual total column gets mistaken for "December" and inflates it,
+and a similarly-purposed column in the sibling table isn't recognized at
+all and silently disappears from the output — no error, just missing data.
+`pipeline_fixed.sql` shows the proposed correction: one shared lookup table
+instead of two mapping rules that can drift apart, non-monthly columns kept
+clearly separate, and an explicit check that fails loudly on an unrecognized
+label instead of quietly returning nothing.
+
+**[`databricks/lateral-view-stack-unpivot`](databricks/lateral-view-stack-unpivot)**
+Shows a second way to turn columns into rows — for when you already have a
+handful of calculated numbers (like `SUM(returns)`, `SUM(damaged)`) in one
+query and want them as separate rows, rather than unpivoting a whole source
+table. Explains when to reach for this instead of `UNPIVOT`, and the main way
+it breaks: you tell it how many label/value pairs to expect
+(`STACK(3, ...)`), and if that number gets out of sync with what you
+actually pass in, the results silently misalign.
+
+**[`databricks/point-in-time-active-count`](databricks/point-in-time-active-count)**
+Counts how many items were "active" as of a specific date, using a simple
+comparison (`add_date < snapshot_date`) against a table that already stores
+one row per item per day. The important catch: this formula only works
+because the source table is a true snapshot — an item that leaves inventory
+just stops showing up in later rows. If the source were an event log
+instead (permanent rows with separate "removed" dates), this same formula
+would overcount, since you'd also need to check the item hadn't been removed
+yet. Called out explicitly because it's the kind of assumption that's
+obvious to whoever wrote it and invisible to whoever inherits it later.
+
+### Quick Reference
+
 | Pattern | Location | What it demonstrates |
 |---|---|---|
 | Blended actuals + forecast reporting pipeline | [`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline) | Wide-to-long `UNPIVOT` + label normalization, `CASE`-based categorization, canonical schema alignment via `UNION ALL`, actuals/forecast cutoff blending. Includes a deliberately buggy version (annual-column bleed + silent NULL-drop, both verified) and a proposed fixed version (shared lookup table, verified). |
