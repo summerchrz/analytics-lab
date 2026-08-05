@@ -43,6 +43,10 @@ Hook path is configured via:
 git config core.hooksPath .githooks
 ```
 
+**Note:** `core.hooksPath` is a local git config setting — it does **not** travel
+with the repo. If you clone this fresh on another machine, re-run the command
+above before committing anything.
+
 This is a **defense-in-depth measure, not a substitute for genericizing
 content before committing.** Scanners catch known patterns; they won't catch
 everything (e.g. a business rule described in plain English with no
