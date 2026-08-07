@@ -53,6 +53,17 @@ would overcount, since you'd also need to check the item hadn't been removed
 yet. Called out explicitly because it's the kind of assumption that's
 obvious to whoever wrote it and invisible to whoever inherits it later.
 
+**[`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy)**
+Shows the habit of copying a table you don't own (a vendor feed, another
+team's export) into your own schema before doing any real work against it —
+instead of building every downstream query directly on top of someone
+else's table. The key detail is a table property,
+`delta.columnMapping.mode = 'name'`, set at copy time: it lets you rename or
+drop columns on your copy later as a cheap, instant metadata change instead
+of an expensive full-table rewrite, which matters a lot once you want to fix
+a bad source column name (like the trailing-space labels in the blended
+pipeline pattern above) without breaking every query that already reads it.
+
 ### Quick Reference
 
 | Pattern | Location | What it demonstrates |
@@ -60,6 +71,7 @@ obvious to whoever wrote it and invisible to whoever inherits it later.
 | Blended actuals + forecast reporting pipeline | [`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline) | Wide-to-long `UNPIVOT` + label normalization, `CASE`-based categorization, canonical schema alignment via `UNION ALL`, actuals/forecast cutoff blending. Includes a deliberately buggy version (annual-column bleed + silent NULL-drop, both verified) and a proposed fixed version (shared lookup table, verified). |
 | Unpivoting named measures with `LATERAL VIEW STACK` | [`databricks/lateral-view-stack-unpivot`](databricks/lateral-view-stack-unpivot) | When to use `STACK` vs. `UNPIVOT`; pitfalls of the `STACK(n, ...)` count parameter. |
 | Point-in-time "active as of" count | [`databricks/point-in-time-active-count`](databricks/point-in-time-active-count) | Counting active items from a periodic snapshot table; the critical assumption that makes the formula correct (snapshot vs. event-log source shape). |
+| Schema-stable staging copy | [`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy) | Staging a copy of a table you don't own with `delta.columnMapping.mode = 'name'` so column renames/cleanup later are cheap metadata operations, not full-table rewrites. Verified against a live warehouse. |
 
 Each pattern folder is self-contained and runnable standalone (inline
 synthetic data via `VALUES`, no external tables) and includes a README with
