@@ -74,6 +74,17 @@ would already do correctly with a `GROUP BY`.
 - The dimension values are genuinely fixed and small in number (2-3) and
   extremely unlikely to grow — the parameterization overhead may not be
   worth it for something that will never need a 4th value
+- **The workbook is deliberately one dashboard page per dimension value**
+  (e.g. one page for North America, one for Europe, one for APAC — not a
+  single page where users switch between regions). In this layout, a
+  parameter doesn't actually reduce the calc count: you'd either need a
+  parameter's worth of calcs per page anyway, or a shared parameter that
+  lets users switch dimension values, which defeats the point of a
+  dedicated-page-per-value design in the first place. Here, "one calc per
+  region" is simply the cost of that layout choice, not copy-paste debt —
+  don't recommend parameterizing without first confirming whether the
+  workbook is meant to let users switch the dimension dynamically, or is
+  intentionally structured as fixed, separate views.
 
 ## Note on Verification
 
