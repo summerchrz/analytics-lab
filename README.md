@@ -11,6 +11,8 @@ Python, automation) — a companion to Coursera/self-study work.
 - `python-scripts/` — data validation, automation, and analysis scripts
 - `databricks/` — notes and examples on Databricks features (jobs, workflows,
   SQL warehouses, notebooks) using synthetic or public sample data only
+- `tableau/` — calculation-layer patterns and anti-patterns (LOD
+  expressions, table calculations) using generic field/formula examples
 - `learning-notes/` — write-ups, decision logs, and concepts learned along the way
 
 ## Pattern Index
@@ -64,6 +66,25 @@ of an expensive full-table rewrite, which matters a lot once you want to fix
 a bad source column name (like the trailing-space labels in the blended
 pipeline pattern above) without breaking every query that already reads it.
 
+**[`tableau/duplicated-lod-per-dimension-value`](tableau/duplicated-lod-per-dimension-value)**
+The Tableau-layer version of the "hand-written mapping that drifts" problem:
+instead of one calculation that takes a region/segment as an input, someone
+copy-pasted a near-identical LOD calculation once per region, each with a
+different hardcoded filter value baked in. Works fine until the shared
+logic needs to change (now it's N edits, not one) or a region gets missed.
+Fix: a single parameter-driven calculation, or — better, if you just need
+one row per region — push the aggregation back into the SQL layer instead
+of reproducing a `GROUP BY` by hand in Tableau.
+
+**[`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year)**
+A common way to build "this month vs. same month last year": a table
+calculation that looks a fixed number of *rows* back
+(`LOOKUP(SUM([x]), -12)`). Explains why that's a row-position offset, not a
+real date offset — so it silently breaks the moment a filter, sort change,
+or gap makes row position stop lining up with calendar months — and shows
+the more robust alternative (explicit date-based LOD comparison instead of
+row lookup).
+
 ### Quick Reference
 
 | Pattern | Location | What it demonstrates |
@@ -72,6 +93,8 @@ pipeline pattern above) without breaking every query that already reads it.
 | Unpivoting named measures with `LATERAL VIEW STACK` | [`databricks/lateral-view-stack-unpivot`](databricks/lateral-view-stack-unpivot) | When to use `STACK` vs. `UNPIVOT`; pitfalls of the `STACK(n, ...)` count parameter. |
 | Point-in-time "active as of" count | [`databricks/point-in-time-active-count`](databricks/point-in-time-active-count) | Counting active items from a periodic snapshot table; the critical assumption that makes the formula correct (snapshot vs. event-log source shape). |
 | Schema-stable staging copy | [`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy) | Staging a copy of a table you don't own with `delta.columnMapping.mode = 'name'` so column renames/cleanup later are cheap metadata operations, not full-table rewrites. Verified against a live warehouse. |
+| Duplicated LOD calc per dimension value | [`tableau/duplicated-lod-per-dimension-value`](tableau/duplicated-lod-per-dimension-value) | Anti-pattern: one near-identical LOD calculation copy-pasted per region/segment instead of parameterized. Fix: single parameter-driven calc, or push the aggregation into SQL. |
+| `LOOKUP(..., -12)` year-over-year comparison | [`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year) | Why row-position table calc offsets silently break under sort/filter changes, and the more robust explicit date-based LOD alternative. |
 
 Each pattern folder is self-contained and runnable standalone (inline
 synthetic data via `VALUES`, no external tables) and includes a README with
