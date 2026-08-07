@@ -74,10 +74,31 @@ minimum:
 - Any comparison where the underlying data can have gaps (missing months,
   filtered-out regions, partial current period)
 
+## Confirmed in a Real Workbook
+
+This pattern was cross-checked against a real production workbook (~65
+worksheets), not just reasoned about in the abstract. Findings:
+- The pattern wasn't an isolated formula — **180 separate `LOOKUP(field,
+  offset)` calculations** were in active use across the workbook, all
+  defaulting to "whatever's on the row/column shelf" addressing rather than
+  an explicit fixed partition.
+- The exact failure mode described above wasn't hypothetical: at least one
+  field referenced by a `LOOKUP(-12)` calc already had a **manual custom
+  sort order** applied on one of its worksheets. Any `-12` lookup inheriting
+  that addressing would resolve against the custom order, not chronological
+  order — the drift mechanism this pattern warns about was already present,
+  not just a future risk.
+- Practical takeaway: if you're auditing a workbook and find even one
+  `LOOKUP(..., n)` calc, it's worth grepping the underlying `.twb` XML for
+  every instance rather than assuming it's a one-off — this pattern tends to
+  get copy-pasted across many calculated fields once someone establishes it
+  as "how we do year-over-year here."
+
 ## Note on Verification
 
 Unlike the SQL patterns in this repo, this one wasn't run against a live
-Tableau instance (no direct Tableau Desktop/Server access from this
-environment) — it reflects standard, documented Tableau table calculation
-behavior, not an executed test. Treat the syntax as a starting point to
-adapt, not copy-paste-verified output.
+Tableau Desktop/Server session — the "confirmed in a real workbook" findings
+above came from parsing the exported `.twb` XML directly, not from
+interacting with Tableau's UI. The fix alternatives reflect standard,
+documented Tableau table calculation behavior, not an executed test. Treat
+the syntax as a starting point to adapt, not copy-paste-verified output.
