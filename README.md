@@ -85,6 +85,18 @@ or gap makes row position stop lining up with calendar months — and shows
 the more robust alternative (explicit date-based LOD comparison instead of
 row lookup).
 
+**[`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table)**
+Turns a spreadsheet export from a legacy BI/OLAP tool — the kind with
+stacked header rows, blank spacer columns, and no single clean header row —
+into a tidy, typed table ready to write into Delta/Spark. Walks through
+finding the one reliably-populated column to filter on, reshaping
+wide-to-long with `.melt()`, and the two write-time traps that actually
+matter: a genuinely mixed-type column (some rows `0`, some blank, same
+real meaning) will fail an Arrow conversion unless fixed first, and
+`.astype(str)` is the wrong fix for that — it silently turns real missing
+values into the literal text `"<NA>"` — where pandas' nullable `"string"`
+dtype does it correctly.
+
 ### Quick Reference
 
 | Pattern | Location | What it demonstrates |
@@ -95,6 +107,7 @@ row lookup).
 | Schema-stable staging copy | [`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy) | Staging a copy of a table you don't own with `delta.columnMapping.mode = 'name'` so column renames/cleanup later are cheap metadata operations, not full-table rewrites. Verified against a live warehouse. |
 | Duplicated LOD calc per dimension value | [`tableau/duplicated-lod-per-dimension-value`](tableau/duplicated-lod-per-dimension-value) | Anti-pattern: one near-identical LOD calculation copy-pasted per region/segment instead of parameterized. Fix: single parameter-driven calc, or push the aggregation into SQL. |
 | `LOOKUP(..., -12)` year-over-year comparison | [`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year) | Why row-position table calc offsets silently break under sort/filter changes, and the more robust explicit date-based LOD alternative. |
+| Messy BI-tool export → tidy table | [`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table) | Parsing a multi-header, spacer-column spreadsheet export with no stable header row; `.melt()` reshape; the `.astype(str)` vs. `.astype("string")` null-handling trap before writing to Delta/Spark. |
 
 Each pattern folder is self-contained and runnable standalone (inline
 synthetic data via `VALUES`, no external tables) and includes a README with
