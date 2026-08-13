@@ -199,6 +199,36 @@ a path *from* one API doesn't guarantee it's in the shape a *different*
 API expects it in — worth checking (and stripping/adjusting the prefix)
 rather than assuming a path is portable across every tool that touches it.
 
+## 9. "The job succeeded" and "the automated trigger fired" are two different facts
+
+When checking whether a scheduled/event-driven job actually worked as
+designed, a job run's `result_state: SUCCESS` only tells you the code ran
+without error — it says nothing about *what caused it to run*. A job
+triggered manually ("Run now") and a job triggered automatically by its
+real event source (a file arriving, a table updating) both show up as
+successful runs. If the goal is confirming the automation itself works
+unattended, checking success/failure alone will happily let a manual
+run masquerade as proof the automation works.
+
+The actual signal to check is the run's **trigger type** field (e.g.
+`ONE_TIME` for manual, `TABLE`/`FILE_ARRIVAL`/`PERIODIC` for the different
+automated trigger kinds), not just its result state:
+
+```python
+# Both look identical if you only check `state.result_state`:
+{"result_state": "SUCCESS", "trigger": "ONE_TIME"}   # someone clicked "Run now"
+{"result_state": "SUCCESS", "trigger": "TABLE"}      # the automated trigger actually fired
+```
+
+This matters most right after setting up a new trigger: if the trigger
+was pointed at the wrong source initially and got corrected *after* the
+one real event it needed to react to had already happened, every "test"
+run afterward will be manual by necessity — there's no automatic-firing
+evidence to find until the *next* real event occurs with the trigger
+already correctly configured beforehand. Don't mistake "it ran and worked
+today" for "the unattended automation is proven" without checking which
+field actually tells you that.
+
 ## Why this list exists
 
 None of these are hard concepts once seen once — but "once seen once" is

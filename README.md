@@ -85,6 +85,18 @@ or gap makes row position stop lining up with calendar months — and shows
 the more robust alternative (explicit date-based LOD comparison instead of
 row lookup).
 
+**[`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail)**
+Covers a failure mode that's easy to miss in review: `CREATE TABLE IF NOT
+EXISTS` doesn't error when its target table is missing — it just silently
+creates a brand-new, empty one under that name. So if a table is ever
+renamed and even one leftover reference (often in a different
+notebook/job than the one being actively edited during the cutover) still
+uses the old name guarded by that clause, every write after the rename
+lands in a disconnected orphan table. The job keeps reporting SUCCESS; the
+real table just quietly stops updating, with nothing to flag it. Fix: an
+explicit existence check before writing, that fails loudly instead of
+letting `IF NOT EXISTS` paper over a missing/renamed target.
+
 **[`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table)**
 Turns a spreadsheet export from a legacy BI/OLAP tool — the kind with
 stacked header rows, blank spacer columns, and no single clean header row —
@@ -108,6 +120,7 @@ dtype does it correctly.
 | Duplicated LOD calc per dimension value | [`tableau/duplicated-lod-per-dimension-value`](tableau/duplicated-lod-per-dimension-value) | Anti-pattern: one near-identical LOD calculation copy-pasted per region/segment instead of parameterized. Fix: single parameter-driven calc, or push the aggregation into SQL. |
 | `LOOKUP(..., -12)` year-over-year comparison | [`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year) | Why row-position table calc offsets silently break under sort/filter changes, and the more robust explicit date-based LOD alternative. |
 | Messy BI-tool export → tidy table | [`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table) | Parsing a multi-header, spacer-column spreadsheet export with no stable header row; `.melt()` reshape; the `.astype(str)` vs. `.astype("string")` null-handling trap before writing to Delta/Spark. |
+| Guardrail against renamed-table recreation | [`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail) | Why `CREATE TABLE IF NOT EXISTS` is a silent-failure risk after any table rename, and an existence-check guardrail that fails loudly instead. Verified against a live warehouse. |
 
 Each pattern folder is self-contained and runnable standalone (inline
 synthetic data via `VALUES`, no external tables) and includes a README with
