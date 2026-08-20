@@ -6,6 +6,9 @@ understand them.
 
 ## Notes
 
+- [`career-skills-map.md`](career-skills-map.md) —
+  Personal skills levels, senior-adjacent instincts, role projection (~4 years
+  in), priority stack, and how Excel / Power Automate / Databricks fit together
 - [`python-databricks-concepts-from-a-data-pipeline-build.md`](python-databricks-concepts-from-a-data-pipeline-build.md) —
   Python indentation/block-scoping, list comprehensions, `lambda` +
   `max(key=...)`, single-responsibility functions, pandas' nullable
