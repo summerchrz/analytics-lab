@@ -13,6 +13,8 @@ Python, automation) — a companion to Coursera/self-study work.
   SQL warehouses, notebooks) using synthetic or public sample data only
 - `tableau/` — calculation-layer patterns and anti-patterns (LOD
   expressions, table calculations) using generic field/formula examples
+- `powerpoint/` — slide-show VBA patterns (timers, automation) using
+  generic shape names and no deck-specific content
 - `learning-notes/` — write-ups, decision logs, and concepts learned along the way
 
 ## Pattern Index
@@ -109,6 +111,13 @@ real meaning) will fail an Arrow conversion unless fixed first, and
 values into the literal text `"<NA>"` — where pandas' nullable `"string"`
 dtype does it correctly.
 
+**[`powerpoint/slide-show-countdown-timer`](powerpoint/slide-show-countdown-timer)**
+A slide-show countdown that writes `HH:MM:SS` into a named shape
+(`TimerBox`) every second using a Windows `SetTimer` callback — more
+reliable during full-screen slide show than `Application.OnTime`. Supports
+duration mode (default/max 2:55:00) and end-time mode, with shape lookup
+across current slide, layout, and master.
+
 ### Quick Reference
 
 | Pattern | Location | What it demonstrates |
@@ -121,6 +130,7 @@ dtype does it correctly.
 | `LOOKUP(..., -12)` year-over-year comparison | [`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year) | Why row-position table calc offsets silently break under sort/filter changes, and the more robust explicit date-based LOD alternative. |
 | Messy BI-tool export → tidy table | [`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table) | Parsing a multi-header, spacer-column spreadsheet export with no stable header row; `.melt()` reshape; the `.astype(str)` vs. `.astype("string")` null-handling trap before writing to Delta/Spark. |
 | Guardrail against renamed-table recreation | [`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail) | Why `CREATE TABLE IF NOT EXISTS` is a silent-failure risk after any table rename, and an existence-check guardrail that fails loudly instead. Verified against a live warehouse. |
+| Slide show countdown timer | [`powerpoint/slide-show-countdown-timer`](powerpoint/slide-show-countdown-timer) | Windows `SetTimer` callback during slide show; duration vs. end-time modes; named-shape text updates across slide/layout/master. |
 
 Each pattern folder is self-contained and runnable standalone (inline
 synthetic data via `VALUES`, no external tables) and includes a README with
