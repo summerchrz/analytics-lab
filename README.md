@@ -15,6 +15,8 @@ Python, automation) — a companion to Coursera/self-study work.
   expressions, table calculations) using generic field/formula examples
 - `powerpoint/` — slide-show VBA patterns (timers, automation) using
   generic shape names and no deck-specific content
+- `excel/` — workbook VBA patterns (allocation grids, export pipelines,
+  dedup/rollup) using config named ranges, not OEM-specific logic
 - `learning-notes/` — write-ups, decision logs, and concepts learned along the way
 
 ## Pattern Index
@@ -118,6 +120,13 @@ reliable during full-screen slide show than `Application.OnTime`. Supports
 duration mode (default/max 2:55:00) and end-time mode, with shape lookup
 across current slide, layout, and master.
 
+**[`excel/monthly-tab-allocation-workbook`](excel/monthly-tab-allocation-workbook)**
+VBA pipeline for workbooks with one worksheet per month: regex-filtered tab
+processing, zero-column hide, CSV flatten export, total-allocation
+consolidation, dictionary dedup with normalized delivery-month keys, trim vs
+no-trim rollup, adds-by-month matrix, and Tableau `SUMIFS` formula bridge
+frozen to values.
+
 ### Quick Reference
 
 | Pattern | Location | What it demonstrates |
@@ -131,6 +140,7 @@ across current slide, layout, and master.
 | Messy BI-tool export → tidy table | [`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table) | Parsing a multi-header, spacer-column spreadsheet export with no stable header row; `.melt()` reshape; the `.astype(str)` vs. `.astype("string")` null-handling trap before writing to Delta/Spark. |
 | Guardrail against renamed-table recreation | [`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail) | Why `CREATE TABLE IF NOT EXISTS` is a silent-failure risk after any table rename, and an existence-check guardrail that fails loudly instead. Verified against a live warehouse. |
 | Slide show countdown timer | [`powerpoint/slide-show-countdown-timer`](powerpoint/slide-show-countdown-timer) | Windows `SetTimer` callback during slide show; duration vs. end-time modes; named-shape text updates across slide/layout/master. |
+| Monthly-tab allocation workbook | [`excel/monthly-tab-allocation-workbook`](excel/monthly-tab-allocation-workbook) | Month-tab regex filter, CSV export, dedup rollup, adds-by-month pivot, Tableau SUMIFS bridge; config via named ranges. |
 
 Each pattern folder is self-contained and runnable standalone (inline
 synthetic data via `VALUES`, no external tables) and includes a README with
