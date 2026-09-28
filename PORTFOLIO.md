@@ -51,7 +51,15 @@ See:
 - [Debugging playbook](case-studies/debugging-playbook)
 - [Analytics engineering migration case study](case-studies/analytics-engineering-migration)
 
-### 5. Learning in public
+### 5. AI-assisted analytics
+
+AI tools are part of how I build, debug, document, and generalize analytical work, but they do not replace validation or ownership of the underlying model.
+
+Featured:
+- [AI-assisted analytics workflow](case-studies/ai-assisted-analytics-workflow)
+- [AI-assisted building notes](ai-building/README.md)
+
+### 6. Learning in public
 
 I use this repository as a technical lab as well as a portfolio. The learning notes are intentionally honest about what is already strong and what is still being built.
 
