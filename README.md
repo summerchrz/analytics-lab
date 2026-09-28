@@ -1,187 +1,114 @@
-# analytics-lab
+# Analytics Lab
 
-A personal, company-agnostic collection of SQL patterns, Python scripts, and
-learning notes built while growing into analytics engineering (Databricks,
-Python, automation) — a companion to Coursera/self-study work.
+### Analytics • Automation • Analytics Engineering
 
-## Structure
+A practical portfolio of data transformations, debugging patterns, automation work, and engineering notes built from real analytical problems and rewritten with synthetic or generalized examples.
 
-- `sql-patterns/` — generalized, reusable SQL techniques (window functions,
-  reconciliation queries, parameterized query patterns, etc.)
-- `python-scripts/` — data validation, automation, and analysis scripts
-- `databricks/` — notes and examples on Databricks features (jobs, workflows,
-  SQL warehouses, notebooks) using synthetic or public sample data only
-- `tableau/` — calculation-layer patterns and anti-patterns (LOD
-  expressions, table calculations) using generic field/formula examples
-- `powerpoint/` — slide-show VBA patterns (timers, automation) using
-  generic shape names and no deck-specific content
-- `excel/` — workbook VBA patterns (allocation grids, export pipelines,
-  dedup/rollup) using config named ranges, not OEM-specific logic
-- `learning-notes/` — write-ups, decision logs, and concepts learned along the way
+**[Portfolio overview](PORTFOLIO.md)** · **[LinkedIn](https://www.linkedin.com/in/summer-c-3623a2121)**
 
-## Pattern Index
+---
 
-### Start Here — What Each Pattern Actually Does
+## What I build
 
-**[`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline)**
-Takes several differently-shaped data sources and merges them into one clean,
-long-format reporting table — using real actuals for past months and
-forecast numbers for future months, with a single date deciding where the
-switch happens. Two wide, spreadsheet-style tables get flattened into rows,
-their inconsistent month labels get mapped to real dates, a third daily-log
-source gets rolled up to match, and everything lands in one shared table via
-`UNION ALL`. This one deliberately keeps two real bugs instead of hiding
-them: an annual total column gets mistaken for "December" and inflates it,
-and a similarly-purposed column in the sibling table isn't recognized at
-all and silently disappears from the output — no error, just missing data.
-`pipeline_fixed.sql` shows the proposed correction: one shared lookup table
-instead of two mapping rules that can drift apart, non-monthly columns kept
-clearly separate, and an explicit check that fails loudly on an unrecognized
-label instead of quietly returning nothing.
+I work across the space between traditional analytics and analytics engineering: SQL and Databricks for data transformation, Python for cleanup and automation, Tableau for delivery, and Excel/VBA for the legacy workflows that still need to work while better systems are being built.
 
-**[`databricks/lateral-view-stack-unpivot`](databricks/lateral-view-stack-unpivot)**
-Shows a second way to turn columns into rows — for when you already have a
-handful of calculated numbers (like `SUM(returns)`, `SUM(damaged)`) in one
-query and want them as separate rows, rather than unpivoting a whole source
-table. Explains when to reach for this instead of `UNPIVOT`, and the main way
-it breaks: you tell it how many label/value pairs to expect
-(`STACK(3, ...)`), and if that number gets out of sync with what you
-actually pass in, the results silently misalign.
+A recurring theme in this repository is moving from manual, fragile, presentation-layer logic toward reusable, testable, documented data workflows.
 
-**[`databricks/point-in-time-active-count`](databricks/point-in-time-active-count)**
-Counts how many items were "active" as of a specific date, using a simple
-comparison (`add_date < snapshot_date`) against a table that already stores
-one row per item per day. The important catch: this formula only works
-because the source table is a true snapshot — an item that leaves inventory
-just stops showing up in later rows. If the source were an event log
-instead (permanent rows with separate "removed" dates), this same formula
-would overcount, since you'd also need to check the item hadn't been removed
-yet. Called out explicitly because it's the kind of assumption that's
-obvious to whoever wrote it and invisible to whoever inherits it later.
+## Featured work
 
-**[`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy)**
-Shows the habit of copying a table you don't own (a vendor feed, another
-team's export) into your own schema before doing any real work against it —
-instead of building every downstream query directly on top of someone
-else's table. The key detail is a table property,
-`delta.columnMapping.mode = 'name'`, set at copy time: it lets you rename or
-drop columns on your copy later as a cheap, instant metadata change instead
-of an expensive full-table rewrite, which matters a lot once you want to fix
-a bad source column name (like the trailing-space labels in the blended
-pipeline pattern above) without breaking every query that already reads it.
+### 🧩 Blended actuals + forecast pipeline
+[databricks/blended-actuals-forecast-pipeline](databricks/blended-actuals-forecast-pipeline)
 
-**[`tableau/duplicated-lod-per-dimension-value`](tableau/duplicated-lod-per-dimension-value)**
-The Tableau-layer version of the "hand-written mapping that drifts" problem:
-instead of one calculation that takes a region/segment as an input, someone
-copy-pasted a near-identical LOD calculation once per region, each with a
-different hardcoded filter value baked in. Works fine until the shared
-logic needs to change (now it's N edits, not one) or a region gets missed.
-Fix: a single parameter-driven calculation, or — better, if you just need
-one row per region — push the aggregation back into the SQL layer instead
-of reproducing a `GROUP BY` by hand in Tableau.
+Combines differently shaped sources into one long-format reporting table, blends actuals and forecast using a date cutoff, and documents intentionally preserved failure modes before showing a safer design.
 
-**[`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year)**
-A common way to build "this month vs. same month last year": a table
-calculation that looks a fixed number of *rows* back
-(`LOOKUP(SUM([x]), -12)`). Explains why that's a row-position offset, not a
-real date offset — so it silently breaks the moment a filter, sort change,
-or gap makes row position stop lining up with calendar months — and shows
-the more robust alternative (explicit date-based LOD comparison instead of
-row lookup).
+**Shows:** Databricks SQL, UNPIVOT, schema alignment, label normalization, failure detection.
 
-**[`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail)**
-Covers a failure mode that's easy to miss in review: `CREATE TABLE IF NOT
-EXISTS` doesn't error when its target table is missing — it just silently
-creates a brand-new, empty one under that name. So if a table is ever
-renamed and even one leftover reference (often in a different
-notebook/job than the one being actively edited during the cutover) still
-uses the old name guarded by that clause, every write after the rename
-lands in a disconnected orphan table. The job keeps reporting SUCCESS; the
-real table just quietly stops updating, with nothing to flag it. Fix: an
-explicit existence check before writing, that fails loudly instead of
-letting `IF NOT EXISTS` paper over a missing/renamed target.
+### 🧹 Messy BI export → tidy table
+[python-scripts/messy-bi-export-to-tidy-table](python-scripts/messy-bi-export-to-tidy-table)
 
-**[`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table)**
-Turns a spreadsheet export from a legacy BI/OLAP tool — the kind with
-stacked header rows, blank spacer columns, and no single clean header row —
-into a tidy, typed table ready to write into Delta/Spark. Walks through
-finding the one reliably-populated column to filter on, reshaping
-wide-to-long with `.melt()`, and the two write-time traps that actually
-matter: a genuinely mixed-type column (some rows `0`, some blank, same
-real meaning) will fail an Arrow conversion unless fixed first, and
-`.astype(str)` is the wrong fix for that — it silently turns real missing
-values into the literal text `"<NA>"` — where pandas' nullable `"string"`
-dtype does it correctly.
+Transforms a multi-header spreadsheet-style export into a typed analytical table and explores the pandas null/type problems that can break writes into Spark/Delta.
 
-**[`powerpoint/slide-show-countdown-timer`](powerpoint/slide-show-countdown-timer)**
-A slide-show countdown that writes `HH:MM:SS` into a named shape
-(`TimerBox`) every second using a Windows `SetTimer` callback — more
-reliable during full-screen slide show than `Application.OnTime`. Supports
-duration mode (default/max 2:55:00) and end-time mode, with shape lookup
-across current slide, layout, and master.
+**Shows:** Python, pandas, reshape logic, data typing, defensive cleanup.
 
-**[`excel/monthly-tab-allocation-workbook`](excel/monthly-tab-allocation-workbook)**
-VBA pipeline for workbooks with one worksheet per month: regex-filtered tab
-processing, zero-column hide, CSV flatten export, total-allocation
-consolidation, dictionary dedup with normalized delivery-month keys, trim vs
-no-trim rollup, adds-by-month matrix, and Tableau `SUMIFS` formula bridge
-frozen to values.
+### 🛡️ Renamed-table recreation guardrail
+[databricks/renamed-table-recreation-guardrail](databricks/renamed-table-recreation-guardrail)
 
-### Quick Reference
+Demonstrates how valid SQL can silently create an orphan table after a rename, and how to make the failure visible instead.
 
-| Pattern | Location | What it demonstrates |
-|---|---|---|
-| Blended actuals + forecast reporting pipeline | [`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline) | Wide-to-long `UNPIVOT` + label normalization, `CASE`-based categorization, canonical schema alignment via `UNION ALL`, actuals/forecast cutoff blending. Includes a deliberately buggy version (annual-column bleed + silent NULL-drop, both verified) and a proposed fixed version (shared lookup table, verified). |
-| Unpivoting named measures with `LATERAL VIEW STACK` | [`databricks/lateral-view-stack-unpivot`](databricks/lateral-view-stack-unpivot) | When to use `STACK` vs. `UNPIVOT`; pitfalls of the `STACK(n, ...)` count parameter. |
-| Point-in-time "active as of" count | [`databricks/point-in-time-active-count`](databricks/point-in-time-active-count) | Counting active items from a periodic snapshot table; the critical assumption that makes the formula correct (snapshot vs. event-log source shape). |
-| Schema-stable staging copy | [`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy) | Staging a copy of a table you don't own with `delta.columnMapping.mode = 'name'` so column renames/cleanup later are cheap metadata operations, not full-table rewrites. Verified against a live warehouse. |
-| Duplicated LOD calc per dimension value | [`tableau/duplicated-lod-per-dimension-value`](tableau/duplicated-lod-per-dimension-value) | Anti-pattern: one near-identical LOD calculation copy-pasted per region/segment instead of parameterized. Fix: single parameter-driven calc, or push the aggregation into SQL. |
-| `LOOKUP(..., -12)` year-over-year comparison | [`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year) | Why row-position table calc offsets silently break under sort/filter changes, and the more robust explicit date-based LOD alternative. |
-| Messy BI-tool export → tidy table | [`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table) | Parsing a multi-header, spacer-column spreadsheet export with no stable header row; `.melt()` reshape; the `.astype(str)` vs. `.astype("string")` null-handling trap before writing to Delta/Spark. |
-| Guardrail against renamed-table recreation | [`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail) | Why `CREATE TABLE IF NOT EXISTS` is a silent-failure risk after any table rename, and an existence-check guardrail that fails loudly instead. Verified against a live warehouse. |
-| Slide show countdown timer | [`powerpoint/slide-show-countdown-timer`](powerpoint/slide-show-countdown-timer) | Windows `SetTimer` callback during slide show; duration vs. end-time modes; named-shape text updates across slide/layout/master. |
-| Monthly-tab allocation workbook | [`excel/monthly-tab-allocation-workbook`](excel/monthly-tab-allocation-workbook) | Month-tab regex filter, CSV export, dedup rollup, adds-by-month pivot, Tableau SUMIFS bridge; config via named ranges. |
+**Shows:** production-minded SQL, guardrails, failure-mode reasoning.
 
-Each pattern folder is self-contained and runnable standalone (inline
-synthetic data via `VALUES`, no external tables) and includes a README with
-the pattern explanation, when to use it, common pitfalls, and a verification
-note confirming it was actually run against a live Databricks SQL warehouse.
+### 📊 Tableau year-boundary starting balance
+[case-studies/tableau-year-boundary-starting-balance](case-studies/tableau-year-boundary-starting-balance)
 
-## Content Rules (read before committing)
+Explores the deceptively difficult requirement that January's opening value equal December's closing value while prior-year detail remains hidden.
 
-This repo must never contain:
+**Shows:** Tableau calculation context, state transitions, circular dependencies, SQL pushdown decisions.
 
-- Real company data, table names, schema names, or query results
-- Company hostnames, warehouse/cluster IDs, connection strings, or profile names
-- Internal business logic tied to a specific employer's systems
-- Credentials, tokens, or API keys of any kind
+### ⚙️ Monthly-tab allocation automation
+[excel/monthly-tab-allocation-workbook](excel/monthly-tab-allocation-workbook)
 
-When adapting something learned at work into an example here:
+A workbook automation pipeline covering month-tab selection, exports, dictionary-based deduplication, allocation rollups, and downstream reporting output.
 
-1. Rename tables/columns to generic placeholders (`orders`, `customers`,
-   `daily_sales` — not real names)
-2. Use synthetic or public sample data (e.g. Kaggle datasets), never real
-   exports
-3. Describe the *pattern* or *technique*, not the specific business context
+**Shows:** Excel VBA, workflow automation, reconciliation, legacy-system modernization.
 
-## Safety Net
+## Case studies: how I think
 
-A pre-commit hook (`.githooks/pre-commit`) runs [gitleaks](https://github.com/gitleaks/gitleaks)
-against staged changes on every commit, using the ruleset in `.gitleaks.toml`
-(secrets + company-specific term detection). A blocked commit means something
-flagged needs manual review — don't bypass it.
+| Case study | Focus |
+|---|---|
+| [Analytics debugging playbook](case-studies/debugging-playbook) | grain, state, filter timing, boundary cases, silent failures |
+| [Spreadsheet → analytics engineering migration](case-studies/analytics-engineering-migration) | deciding what to migrate, where logic belongs, reconciliation strategy |
+| [Tableau year-boundary starting balance](case-studies/tableau-year-boundary-starting-balance) | cross-year state, hidden data vs removed data, avoiding circular logic |
 
-Hook path is configured via:
+## Technical areas
 
-```
-git config core.hooksPath .githooks
-```
+| Area | Examples in this repo |
+|---|---|
+| **SQL / Databricks** | transforms, snapshots, unpivoting, schema stability, pipeline guardrails |
+| **Python** | pandas cleanup, automation scripts, learning-to-production progression |
+| **Tableau** | LOD design, table calculations, calculation-context pitfalls |
+| **Excel / VBA** | workbook pipelines, allocation logic, exports, automation |
+| **Automation** | workflow decomposition, handoffs, reducing manual processing |
+| **AI-assisted development** | repository workflow, tutoring-first learning, code review and documentation |
+| **Documentation** | case studies, failure modes, architecture reasoning, learning notes |
 
-**Note:** `core.hooksPath` is a local git config setting — it does **not** travel
-with the repo. If you clone this fresh on another machine, re-run the command
-above before committing anything.
+## Repository map
 
-This is a **defense-in-depth measure, not a substitute for genericizing
-content before committing.** Scanners catch known patterns; they won't catch
-everything (e.g. a business rule described in plain English with no
-recognizable keyword).
+- [databricks/](databricks) — lakehouse and Spark SQL patterns
+- [python-scripts/](python-scripts) — cleanup, automation, and analysis
+- [tableau/](tableau) — BI-layer calculations and anti-patterns
+- [excel/](excel) — workbook/VBA automation
+- [powerpoint/](powerpoint) — presentation automation
+- [sql-patterns/](sql-patterns) — reusable SQL techniques
+- [case-studies/](case-studies) — problem-solving and architecture write-ups
+- [ai-building/](ai-building) — AI-assisted development notes
+- [learning-notes/](learning-notes) — skills map and technical learning notes
+
+## Current direction
+
+I am deliberately growing toward **analytics engineering**: keeping the analytical judgment and visualization context of BI work while moving transformations into SQL/Python, adding tests and guardrails, and building toward scheduled, observable data workflows.
+
+See the evolving [career-skills-map.md](learning-notes/career-skills-map.md) for the current technical roadmap.
+
+## Working principles
+
+- **Respect the grain.** Many analytics bugs are really grain or join problems wearing a costume.
+- **Fail loudly.** A visible error is safer than a plausible wrong number.
+- **Put logic where it belongs.** Reporting tools should present data, not become an accidental transformation platform.
+- **Prefer reusable patterns to one-off fixes.**
+- **Document assumptions and boundary conditions.**
+- **Use AI to accelerate understanding, not replace it.**
+- **Sanitize before sharing.** No company data, schemas, credentials, private business rules, or identifiable internal artifacts belong here.
+
+## Privacy and sanitization
+
+Some ideas in this repository originate from real-world analytical problems. They are rebuilt using generic naming and synthetic/public data.
+
+This repository must never contain real company or customer data, internal table/schema names, credentials, tokens, hostnames, connection strings, confidential business logic, or identifiable screenshots/exports.
+
+A local gitleaks pre-commit hook provides an additional safety check. It is defense in depth, not a substitute for thoughtful sanitization.
+
+---
+
+### Why this repository exists
+
+> I want this portfolio to show that I can take a messy analytical problem, understand its data shape, isolate the brittle assumption, decide where the logic belongs, build a safer version, and explain why it works.
