@@ -45,7 +45,13 @@ This demonstrates how I approach repetitive operational work: understand the pro
 
 ## Profile in one sentence
 
-Analytics professional growing into analytics engineering, with experience across SQL, Databricks, Python, Tableau, advanced Excel/VBA, Power Automate, APIs, operational analytics, process redesign, and data-quality problem solving.
+Senior analytics professional growing into analytics engineering, with a career spanning supply chain, regulatory master data, logistics automation, APIs, operations research, SQL, Tableau, Databricks, Python, advanced Excel/VBA, and process redesign.
+
+## Career arc
+
+[Career story](CAREER_STORY.md) traces the progression from supply-chain operations and process improvement into data quality, automation, operations research, and senior analytics.
+
+Selected measurable outcomes include reducing a recurring payment workflow from roughly **80 hours to 10 hours per week**, supporting more than **$1.2M in submitted claims**, and contributing to more than **$25K in towing savings**.
 
 ## What differentiates the portfolio
 
