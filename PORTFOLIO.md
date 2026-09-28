@@ -11,7 +11,7 @@ The goal is not to collect every script I have ever touched. It is to show the p
 - document the reasoning behind a solution, not only the final syntax
 - sanitize work-derived ideas into company-agnostic examples
 
-**Quick links:** [Recruiter guide](RECRUITER_GUIDE.md) · [LinkedIn](https://www.linkedin.com/in/summer-c-3623a2121)
+**Quick links:** [Recruiter guide](RECRUITER_GUIDE.md) · [Career story](CAREER_STORY.md) · [LinkedIn](https://www.linkedin.com/in/summer-c-3623a2121)
 
 ## What this portfolio demonstrates
 
