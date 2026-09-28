@@ -61,6 +61,7 @@ A workbook automation pipeline covering month-tab selection, exports, dictionary
 | [High-volume payment automation](case-studies/high-volume-payment-automation) | process redesign, reconciliation, recurring manual-effort reduction |
 | [Operational intake workflow](case-studies/operational-intake-workflow) | structured intake, routing, workflow automation |
 | [Transport cost and zone modeling](case-studies/transport-cost-zone-modeling) | operational modeling, assumptions, scenario architecture |
+| [AI-assisted analytics workflow](case-studies/ai-assisted-analytics-workflow) | AI-assisted problem framing, implementation, validation, and Git-based reuse |
 
 ## Technical areas
 
@@ -71,7 +72,7 @@ A workbook automation pipeline covering month-tab selection, exports, dictionary
 | **Tableau** | LOD design, table calculations, calculation-context pitfalls |
 | **Excel / VBA** | workbook pipelines, allocation logic, exports, automation |
 | **Automation** | workflow decomposition, handoffs, reducing manual processing |
-| **AI-assisted development** | repository workflow, tutoring-first learning, code review and documentation |
+| **AI-assisted analytics & development** | problem decomposition, code iteration, validation, documentation, repository workflow |
 | **Documentation** | case studies, failure modes, architecture reasoning, learning notes |
 
 ## Repository map
