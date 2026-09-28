@@ -11,6 +11,8 @@ The goal is not to collect every script I have ever touched. It is to show the p
 - document the reasoning behind a solution, not only the final syntax
 - sanitize work-derived ideas into company-agnostic examples
 
+**Quick links:** [Recruiter guide](RECRUITER_GUIDE.md) · [LinkedIn](https://www.linkedin.com/in/summer-c-3623a2121)
+
 ## What this portfolio demonstrates
 
 ### 1. Analytics engineering instincts
@@ -112,3 +114,11 @@ Work-derived ideas are rewritten using generic names and synthetic data before t
 Not that I know every tool.
 
 That I can take a messy analytical problem, understand the data shape, find the brittle assumption, decide where the logic belongs, build a safer version, and explain the reasoning clearly.
+
+
+## Additional case studies
+
+- [High-volume payment automation](case-studies/high-volume-payment-automation) — process redesign, reconciliation, and major recurring manual-effort reduction
+- [Operational intake workflow](case-studies/operational-intake-workflow) — structured intake, routing, workflow automation, and exception design
+- [Transport cost and zone modeling](case-studies/transport-cost-zone-modeling) — operational modeling, assumptions, geographic mapping, and scenario design
+- [Python progression](learning-notes/python-progression.md) — learning path from syntax/debugging toward pandas, Databricks, testing, and automation
