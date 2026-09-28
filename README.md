@@ -4,7 +4,7 @@
 
 A practical portfolio of data transformations, debugging patterns, automation work, and engineering notes built from real analytical problems and rewritten with synthetic or generalized examples.
 
-**[Portfolio overview](PORTFOLIO.md)** · **[LinkedIn](https://www.linkedin.com/in/summer-c-3623a2121)**
+**[Portfolio overview](PORTFOLIO.md)** · **[10-minute recruiter tour](RECRUITER_GUIDE.md)** · **[LinkedIn](https://www.linkedin.com/in/summer-c-3623a2121)**
 
 ---
 
@@ -58,6 +58,9 @@ A workbook automation pipeline covering month-tab selection, exports, dictionary
 | [Analytics debugging playbook](case-studies/debugging-playbook) | grain, state, filter timing, boundary cases, silent failures |
 | [Spreadsheet → analytics engineering migration](case-studies/analytics-engineering-migration) | deciding what to migrate, where logic belongs, reconciliation strategy |
 | [Tableau year-boundary starting balance](case-studies/tableau-year-boundary-starting-balance) | cross-year state, hidden data vs removed data, avoiding circular logic |
+| [High-volume payment automation](case-studies/high-volume-payment-automation) | process redesign, reconciliation, recurring manual-effort reduction |
+| [Operational intake workflow](case-studies/operational-intake-workflow) | structured intake, routing, workflow automation |
+| [Transport cost and zone modeling](case-studies/transport-cost-zone-modeling) | operational modeling, assumptions, scenario architecture |
 
 ## Technical areas
 
