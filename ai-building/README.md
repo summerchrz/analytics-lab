@@ -43,6 +43,14 @@ Useful solutions should end up in Git with context around why they exist.
 
 Chat is temporary. A documented repository becomes reusable knowledge.
 
+## How this connects to analytics work
+
+AI is increasingly part of the workflow around analytics, not a separate hobby layer.
+
+I use it to accelerate problem decomposition, code iteration, documentation, synthetic-example generation, and design comparison while keeping data interpretation, validation, and implementation decisions under human review.
+
+See the [AI-assisted analytics workflow case study](../case-studies/ai-assisted-analytics-workflow) for the full pattern.
+
 ## What I am building toward
 
 The long-term goal is to use AI tools to accelerate end-to-end analytics engineering work:
