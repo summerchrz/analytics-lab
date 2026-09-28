@@ -7,7 +7,7 @@ Python, automation) — a companion to Coursera/self-study work.
 ## Structure
 
 - `sql-patterns/` — generalized, reusable SQL techniques (window functions,
-  reconciliation queries, parameterized query patterns, etc.)
+  reconciliation queries, snapshot attrition, tall mix layers, etc.)
 - `python-scripts/` — data validation, automation, and analysis scripts
 - `databricks/` — notes and examples on Databricks features (jobs, workflows,
   SQL warehouses, notebooks) using synthetic or public sample data only
@@ -22,6 +22,16 @@ Python, automation) — a companion to Coursera/self-study work.
 ## Pattern Index
 
 ### Start Here — What Each Pattern Actually Does
+
+**[`sql-patterns/snapshot-mom-attrition-tall-layers`](sql-patterns/snapshot-mom-attrition-tall-layers)**
+Infers “exits” from a periodic inventory snapshot (on prior month-end, gone
+from *all* locations on current) when you lack a clean exit-event table at
+the right grain, then rolls origin–destination moves to location in/out and
+`UNION ALL`s stock + adds + exits + moves into one tall table so a dashboard
+can share month/location/attribute filters. Breaks when a month-end snap is
+missing (false mass exits), when you chart national move net (≈0 in a closed
+system), or when you sum a overloaded measure across layers (item counts vs
+trip counts in the same column).
 
 **[`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline)**
 Takes several differently-shaped data sources and merges them into one clean,
@@ -101,6 +111,22 @@ real table just quietly stops updating, with nothing to flag it. Fix: an
 explicit existence check before writing, that fails loudly instead of
 letting `IF NOT EXISTS` paper over a missing/renamed target.
 
+**[`databricks/report-period-dim-and-gate`](databricks/report-period-dim-and-gate)**
+One reporting-period knob → dim lookup → fail-loud checks before any
+staging/Excel write. Shows why a dry run on the *next* template with the
+*last closed* period is different from forcing an open period through the
+gate when upstream has zero rows for that snapshot month.
+
+**[`python-scripts/openpyxl-chart-face-strip`](python-scripts/openpyxl-chart-face-strip)**
+Write only the category/value cells a template chart already points at —
+don’t recreate the chart in openpyxl (formatting reset). Also documents
+when to use a **locked published seed** instead of computing face values
+from an incomplete live feed.
+
+**[`learning-notes/when-not-to-automate-a-source`](learning-notes/when-not-to-automate-a-source.md)**
+Mechanical hardcodes (automate) vs judgment/published locks (don’t
+auto-refresh) — short decision note paired with the two patterns above.
+
 **[`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table)**
 Turns a spreadsheet export from a legacy BI/OLAP tool — the kind with
 stacked header rows, blank spacer columns, and no single clean header row —
@@ -139,6 +165,9 @@ frozen to values.
 | `LOOKUP(..., -12)` year-over-year comparison | [`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year) | Why row-position table calc offsets silently break under sort/filter changes, and the more robust explicit date-based LOD alternative. |
 | Messy BI-tool export → tidy table | [`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table) | Parsing a multi-header, spacer-column spreadsheet export with no stable header row; `.melt()` reshape; the `.astype(str)` vs. `.astype("string")` null-handling trap before writing to Delta/Spark. |
 | Guardrail against renamed-table recreation | [`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail) | Why `CREATE TABLE IF NOT EXISTS` is a silent-failure risk after any table rename, and an existence-check guardrail that fails loudly instead. Verified against a live warehouse. |
+| Report-period dim + fail-loud gate | [`databricks/report-period-dim-and-gate`](databricks/report-period-dim-and-gate) | Single period knob → dim → stop the run if the snapshot month isn’t upstream yet. |
+| OpenPyXL chart face strip (data-only) | [`python-scripts/openpyxl-chart-face-strip`](python-scripts/openpyxl-chart-face-strip) | Overwrite chart source cells only; locked seed vs incomplete feed. |
+| When not to automate a source | [`learning-notes/when-not-to-automate-a-source`](learning-notes/when-not-to-automate-a-source.md) | Mechanical vs judgment hardcodes. |
 | Slide show countdown timer | [`powerpoint/slide-show-countdown-timer`](powerpoint/slide-show-countdown-timer) | Windows `SetTimer` callback during slide show; duration vs. end-time modes; named-shape text updates across slide/layout/master. |
 | Monthly-tab allocation workbook | [`excel/monthly-tab-allocation-workbook`](excel/monthly-tab-allocation-workbook) | Month-tab regex filter, CSV export, dedup rollup, adds-by-month pivot, Tableau SUMIFS bridge; config via named ranges. |
 
