@@ -1,16 +1,12 @@
 # Career Story
 
-This portfolio sits at the intersection of supply chain, analytics, process improvement, and emerging analytics engineering.
+This portfolio sits at the intersection of supply chain, analytics, process improvement, and analytics engineering.
 
 ## Career progression
 
 ### Supply chain foundations
 
-My early work combined operations, procurement, reporting, and process improvement.
-
-- supply chain internship supporting manufacturing, purchasing, suppliers, SAP reporting, and open-order analysis
-- operations-focused coursework in logistics, sourcing, finance, business analytics, transportation, and operational excellence
-- Lean Six Sigma training and certifications beginning early in my career
+My early work combined operations, procurement, reporting, forecasting, supplier coordination, and process improvement.
 
 That background matters because many analytics problems are operational before they are technical.
 
@@ -18,7 +14,7 @@ That background matters because many analytics problems are operational before t
 
 In regulatory operations, I worked with master data, SAP, audits, KPI reporting, integration testing, and data-quality issues.
 
-That experience strengthened several habits that still shape my analytics work:
+That experience strengthened habits that still shape my analytics work:
 
 - accuracy and completeness checks
 - controlled master-data changes
@@ -32,9 +28,9 @@ In fleet logistics, the work expanded into transportation pricing, purchasing, c
 
 Examples include:
 
-- building a new insurance claim / warranty process and supporting more than $1.2M in submitted claims
+- building a new insurance claim / warranty process and supporting more than **$1.2M in submitted claims**
 - reducing towing cycle time with templates and workflow automation
-- documenting a towing process that contributed to more than $25K in savings
+- developing a towing SOP and related process improvements that contributed to more than **$100K in operational savings**, including **$11K on a single tow**
 - redesigning repetitive payment workflows
 
 This stage is where process improvement and analytics began to merge.
@@ -44,25 +40,33 @@ This stage is where process improvement and analytics began to merge.
 The next step added more direct technical ownership:
 
 - API-based bulk communication
-- macro-enabled financial templates
+- Excel/VBA financial templates
 - repeatable workflow improvements
-- stronger use of Excel/VBA as an automation layer
+- stronger use of automation as a bridge between operations and analytics
 
 ### Operations research and model support
 
 Operations research work deepened the analytical side:
 
-- supporting model inputs and validation
+- supporting fleet-planning model inputs and validation
 - working with SQL, Tableau, and Excel
 - understanding optimization-model behavior
-- collaborating with business teams to improve model assumptions and outputs
-- maintaining knowledge of legacy reporting workflows
-
-This is where the transition toward analytics engineering became more explicit.
+- collaborating with business teams to improve assumptions and outputs
+- maintaining historical reporting continuity
+- investigating inconsistencies before they reached downstream planning
 
 ### Senior fleet analytics
 
-The current role continues that progression into more complex fleet planning and strategy work, while the technical stack continues to expand into Databricks, Python, automation, and repository-based development.
+The current role extends that progression into more complex fleet planning and analytics-engineering-shaped work.
+
+Current patterns include:
+
+- building analytical models from raw operational source tables
+- combining multiple data sources into reusable transformation and reporting layers
+- using SQL, Azure Databricks, Python, Tableau, and Excel
+- moving fragile presentation-layer logic upstream when a reusable transformation is more maintainable
+- validating across source, transformation, and reporting layers
+- using AI-assisted analytics and development for debugging, documentation, code iteration, and solution design while retaining human validation
 
 ## Quantified impact
 
@@ -70,12 +74,10 @@ A few examples of measurable outcomes across the career path:
 
 - reduced a recurring payment process from about **80 hours to 10 hours per week**
 - supported more than **$1.2M in submitted claims**
-- contributed to more than **$25K in towing savings**
+- contributed to more than **$100K in operational savings**
 - built analytical and automation tools used across operational workflows
 
 ## Technical progression
-
-The technical trajectory has been:
 
 ```
 Excel / reporting
@@ -94,12 +96,12 @@ analytics engineering
 The tools changed, but the underlying problem-solving pattern stayed consistent:
 
 1. understand the process
-2. define the data
+2. define the grain and source relationships
 3. find the failure point
 4. automate repeatable work
 5. validate the output
-6. document the assumptions
-7. move logic into a more maintainable layer when possible
+6. document assumptions
+7. move logic into a more maintainable layer when appropriate
 
 ## Education
 
@@ -113,7 +115,7 @@ Creative writing strengthened communication, narrative structure, critique, and 
 **B.S., Supply Chain Management**  
 2018–2020
 
-Relevant study included operations management, finance, logistics, strategic sourcing, business analytics, operational excellence, transportation analytics, corporate finance, and purchasing.
+Relevant study included business analytics, operations management, logistics, strategic sourcing, transportation analytics, operational excellence, corporate finance, business finance, and purchasing.
 
 ### Florida SouthWestern State College
 **Associate degree, General Studies / Business Focus**  
@@ -127,8 +129,8 @@ The full LinkedIn profile contains a broad continuing-education history. The mos
 - Excel/VBA for Creative Problem Solving Specialization
 - Python for Data Science, AI & Development
 - SQL coursework from IBM, UC Davis, and University of Colorado Boulder
-- Data Visualization and Dashboards with Excel and Cognos
-- Six Sigma Black Belt / Green Belt foundations
+- data analytics and visualization coursework
+- Lean Six Sigma credentials and process-improvement training
 - Root Cause Analysis
 - Operational Excellence and Kaizen training
 
