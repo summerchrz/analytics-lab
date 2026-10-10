@@ -1,13 +1,14 @@
 # Portfolio Overview
 
-This repository is a curated record of how I solve analytics problems across SQL, Databricks, Python, Tableau, Excel/VBA, automation, and reporting.
+This repository is a curated record of how I solve analytics problems across SQL, Azure Databricks, Python, Tableau, Excel/VBA, automation, and reporting.
 
 The goal is not to collect every script I have ever touched. It is to show the patterns I return to repeatedly:
 
+- define the grain before joining data
 - move brittle logic out of the presentation layer
 - make hidden assumptions explicit
 - prefer reproducible transformations over manual fixes
-- design for failure detection, not just happy-path execution
+- design for reconciliation and failure detection
 - document the reasoning behind a solution, not only the final syntax
 - sanitize work-derived ideas into company-agnostic examples
 
@@ -15,41 +16,43 @@ The goal is not to collect every script I have ever touched. It is to show the p
 
 ## What this portfolio demonstrates
 
-### 1. Analytics engineering instincts
+### 1. Multi-source analytical modeling
 
-The Databricks and SQL patterns show how I think about grain, schema stability, long-format reporting, blended actuals/forecast logic, point-in-time state, and silent-failure guardrails.
+A major current theme is building reporting-ready analytical structures from raw operational sources rather than assuming a clean modeled dataset already exists.
 
 Featured:
+- [Multi-source analytics model](case-studies/multi-source-analytics-model)
 - [Blended actuals + forecast pipeline](databricks/blended-actuals-forecast-pipeline)
 - [Schema-stable staging copy](databricks/schema-stable-staging-copy)
-- [Renamed-table recreation guardrail](databricks/renamed-table-recreation-guardrail)
 - [Point-in-time active count](databricks/point-in-time-active-count)
 
-### 2. Data cleanup and automation
+### 2. Analytics engineering instincts
 
-I often work where spreadsheets, exports, and reporting tools meet. The strongest examples are the ones that turn a fragile manual process into a repeatable pipeline.
+The Databricks and SQL patterns show how I think about grain, schema stability, transformation layers, point-in-time state, boundary logic, and silent-failure guardrails.
+
+Featured:
+- [Analytics engineering migration](case-studies/analytics-engineering-migration)
+- [Renamed-table recreation guardrail](databricks/renamed-table-recreation-guardrail)
+- [Debugging playbook](case-studies/debugging-playbook)
+
+### 3. Data cleanup and automation
+
+I often work where spreadsheets, exports, APIs, and reporting tools meet. The strongest examples turn a fragile manual process into a repeatable workflow.
 
 Featured:
 - [Messy BI export to tidy table](python-scripts/messy-bi-export-to-tidy-table)
 - [Monthly-tab allocation workbook](excel/monthly-tab-allocation-workbook)
-- [Slide-show countdown timer](powerpoint/slide-show-countdown-timer)
+- [High-volume payment automation](case-studies/high-volume-payment-automation)
+- [Operational intake workflow](case-studies/operational-intake-workflow)
 
-### 3. Tableau calculation design
+### 4. Tableau calculation design
 
-I use Tableau heavily, but I do not assume every calculation belongs there. Several case studies focus on deciding when a calculation should remain in Tableau and when it should be pushed down into SQL.
+I use Tableau heavily, but I do not assume every calculation belongs there. Several examples focus on deciding when a calculation should remain in Tableau and when it should move upstream.
 
 Featured:
 - [Duplicated LOD per dimension value](tableau/duplicated-lod-per-dimension-value)
 - [LOOKUP offset year-over-year](tableau/lookup-offset-year-over-year)
-- [Year-boundary starting balance case study](case-studies/tableau-year-boundary-starting-balance)
-
-### 4. Debugging and reasoning
-
-A recurring theme in my work is that technically valid code can still produce the wrong answer. I care about identifying the assumption that made the result wrong.
-
-See:
-- [Debugging playbook](case-studies/debugging-playbook)
-- [Analytics engineering migration case study](case-studies/analytics-engineering-migration)
+- [Year-boundary starting balance](case-studies/tableau-year-boundary-starting-balance)
 
 ### 5. AI-assisted analytics
 
@@ -66,42 +69,45 @@ I use this repository as a technical lab as well as a portfolio. The learning no
 See:
 - [Career and skills map](learning-notes/career-skills-map.md)
 - [Python + Databricks concepts from a pipeline build](learning-notes/python-databricks-concepts-from-a-data-pipeline-build.md)
-- [AI-assisted building notes](ai-building/README.md)
+- [Python progression](learning-notes/python-progression.md)
 
 ## Current technical direction
 
-I am moving toward analytics engineering: SQL-first transformations, Python for automation and data processing, Databricks for lakehouse workflows, and BI tools for delivery rather than as the primary home of business logic.
+I am growing toward analytics engineering while keeping the operational judgment and visualization context that came from analytics work.
 
 The direction of travel is:
 
 ```
-manual spreadsheet logic
+raw operational sources
         ↓
-repeatable SQL / Python transformation
+normalization / transformation
         ↓
-tested warehouse / Delta layer
+reusable analytical model
         ↓
-scheduled orchestration
+validation / reconciliation
         ↓
-Tableau / reporting
+Tableau / reporting / decision support
 ```
 
 ## Portfolio principles
 
 **Clarity over cleverness.**  
-A calculation that future-me can understand is more valuable than a compact expression nobody wants to touch.
+A calculation future-me can understand is more valuable than compact logic nobody wants to touch.
 
 **Fail loudly.**  
 Silent wrong answers are more dangerous than visible errors.
 
 **Respect grain.**  
-Most analytics bugs eventually become grain bugs, join bugs, or time-window bugs.
+Many analytics bugs eventually become grain, join, or time-window bugs.
 
 **Put logic where it belongs.**  
-If a transformation is easier to test, reuse, and maintain in SQL or Python, it should probably not live as five duplicated BI calculations.
+If a transformation is easier to test, reuse, and maintain in SQL or Python, it should probably not live as duplicated BI calculations.
+
+**Validate across layers.**  
+Source, transformation, and reporting outputs should reconcile.
 
 **Sanitize aggressively.**  
-Work-derived ideas are rewritten using generic names and synthetic data before they enter this repository.
+Work-derived ideas are rewritten using generic names and synthetic or generalized examples before they enter this repository.
 
 ## Repository map
 
@@ -121,12 +127,4 @@ Work-derived ideas are rewritten using generic names and synthetic data before t
 
 Not that I know every tool.
 
-That I can take a messy analytical problem, understand the data shape, find the brittle assumption, decide where the logic belongs, build a safer version, and explain the reasoning clearly.
-
-
-## Additional case studies
-
-- [High-volume payment automation](case-studies/high-volume-payment-automation) — process redesign, reconciliation, and major recurring manual-effort reduction
-- [Operational intake workflow](case-studies/operational-intake-workflow) — structured intake, routing, workflow automation, and exception design
-- [Transport cost and zone modeling](case-studies/transport-cost-zone-modeling) — operational modeling, assumptions, geographic mapping, and scenario design
-- [Python progression](learning-notes/python-progression.md) — learning path from syntax/debugging toward pandas, Databricks, testing, and automation
+That I can take a messy analytical problem, understand the data shape, define the grain, find the brittle assumption, decide where the logic belongs, build a safer version, validate it, and explain the reasoning clearly.
