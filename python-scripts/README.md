@@ -17,3 +17,8 @@ recording.
 ### [`messy-bi-export-to-tidy-table`](messy-bi-export-to-tidy-table)
 
 Pandas pipeline for turning messy BI Excel exports into tidy tables.
+
+### [`openpyxl-chart-face-strip`](openpyxl-chart-face-strip)
+
+Data-only Excel chart strip writes (don’t recreate charts); locked published
+seed when the live feed can’t reproduce history.
