@@ -2,7 +2,7 @@
 
 ## What It Does
 
-A macro-enabled Excel workbook pattern for fleet/planning-style allocation grids
+A macro-enabled Excel workbook pattern for planning-style allocation grids
 where each month is a separate worksheet (`JAN 2026`, `MAR 2026`, …). The VBA
 automates:
 
@@ -85,3 +85,8 @@ read month tabs → write Total Allocation
 ## Files
 
 All modules are standard `.bas` — import into a `.xlsm` via VBA editor.
+
+
+## Public portfolio note
+
+Names, labels, workbook ranges, and examples in this folder are generalized. The public version is intended to demonstrate the VBA pattern and workflow structure, not reproduce a company workbook or business rule set.

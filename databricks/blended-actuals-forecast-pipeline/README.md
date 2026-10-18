@@ -39,7 +39,7 @@ existed.
    NULL-date audit. All three are necessary; none of them would be triggered
    by a schema check or a "does it run" smoke test.
 
-## Deliberately Preserved Bugs (verified against a live warehouse)
+## Deliberately Preserved Bugs
 
 **Bug 1 — an annual total column gets treated as a 13th month.** Source A's
 wide table includes a `Value` column (an annual total sitting next to the 12

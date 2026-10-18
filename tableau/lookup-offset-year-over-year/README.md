@@ -74,25 +74,11 @@ minimum:
 - Any comparison where the underlying data can have gaps (missing months,
   filtered-out regions, partial current period)
 
-## Confirmed in a Real Workbook
+## Validation note
 
-This pattern was cross-checked against a real production workbook (~65
-worksheets), not just reasoned about in the abstract. Findings:
-- The pattern wasn't an isolated formula — **180 separate `LOOKUP(field,
-  offset)` calculations** were in active use across the workbook, all
-  defaulting to "whatever's on the row/column shelf" addressing rather than
-  an explicit fixed partition.
-- The exact failure mode described above wasn't hypothetical: at least one
-  field referenced by a `LOOKUP(-12)` calc already had a **manual custom
-  sort order** applied on one of its worksheets. Any `-12` lookup inheriting
-  that addressing would resolve against the custom order, not chronological
-  order — the drift mechanism this pattern warns about was already present,
-  not just a future risk.
-- Practical takeaway: if you're auditing a workbook and find even one
-  `LOOKUP(..., n)` calc, it's worth grepping the underlying `.twb` XML for
-  every instance rather than assuming it's a one-off — this pattern tends to
-  get copy-pasted across many calculated fields once someone establishes it
-  as "how we do year-over-year here."
+This failure mode was cross-checked against a complex workbook where row-offset calculations depended on view structure, sorting, and filtering. The important lesson is not the workbook's scale; it is that `LOOKUP(..., -12)` can return a plausible but incorrect comparison when row position no longer matches calendar position.
+
+When inheriting this pattern, inspect addressing, partitioning, sort order, missing periods, and filters before trusting the result.
 
 ## Note on Verification
 

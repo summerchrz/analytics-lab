@@ -6,15 +6,6 @@ The root [README](README.md) stays intentionally short and recruiter-friendly. T
 
 ### Start Here — What Each Pattern Actually Does
 
-**[`sql-patterns/snapshot-mom-attrition-tall-layers`](sql-patterns/snapshot-mom-attrition-tall-layers)**
-Infers “exits” from a periodic inventory snapshot (on prior month-end, gone
-from *all* locations on current) when you lack a clean exit-event table at
-the right grain, then rolls origin–destination moves to location in/out and
-`UNION ALL`s stock + adds + exits + moves into one tall table so a dashboard
-can share month/location/attribute filters. Breaks when a month-end snap is
-missing (false mass exits), when you chart national move net (≈0 in a closed
-system), or when you sum a overloaded measure across layers (item counts vs
-trip counts in the same column).
 
 **[`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline)**
 Takes several differently-shaped data sources and merges them into one clean,
@@ -140,14 +131,14 @@ frozen to values.
 
 | Pattern | Location | What it demonstrates |
 |---|---|---|
-| Blended actuals + forecast reporting pipeline | [`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline) | Wide-to-long `UNPIVOT` + label normalization, `CASE`-based categorization, canonical schema alignment via `UNION ALL`, actuals/forecast cutoff blending. Includes a deliberately buggy version (annual-column bleed + silent NULL-drop, both verified) and a proposed fixed version (shared lookup table, verified). |
+| Blended actuals + forecast reporting pipeline | [`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline) | Wide-to-long `UNPIVOT` + label normalization, `CASE`-based categorization, canonical schema alignment via `UNION ALL`, actuals/forecast cutoff blending. Includes a deliberately buggy version (annual-column bleed + silent NULL-drop, both demonstrated) and a proposed fixed version (shared lookup table, demonstrated). |
 | Unpivoting named measures with `LATERAL VIEW STACK` | [`databricks/lateral-view-stack-unpivot`](databricks/lateral-view-stack-unpivot) | When to use `STACK` vs. `UNPIVOT`; pitfalls of the `STACK(n, ...)` count parameter. |
 | Point-in-time "active as of" count | [`databricks/point-in-time-active-count`](databricks/point-in-time-active-count) | Counting active items from a periodic snapshot table; the critical assumption that makes the formula correct (snapshot vs. event-log source shape). |
-| Schema-stable staging copy | [`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy) | Staging a copy of a table you don't own with `delta.columnMapping.mode = 'name'` so column renames/cleanup later are cheap metadata operations, not full-table rewrites. Verified against a live warehouse. |
+| Schema-stable staging copy | [`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy) | Staging a copy of a table you don't own with `delta.columnMapping.mode = 'name'` so column renames/cleanup later are cheap metadata operations, not full-table rewrites. Validated with representative test cases. |
 | Duplicated LOD calc per dimension value | [`tableau/duplicated-lod-per-dimension-value`](tableau/duplicated-lod-per-dimension-value) | Anti-pattern: one near-identical LOD calculation copy-pasted per region/segment instead of parameterized. Fix: single parameter-driven calc, or push the aggregation into SQL. |
 | `LOOKUP(..., -12)` year-over-year comparison | [`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year) | Why row-position table calc offsets silently break under sort/filter changes, and the more robust explicit date-based LOD alternative. |
 | Messy BI-tool export → tidy table | [`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table) | Parsing a multi-header, spacer-column spreadsheet export with no stable header row; `.melt()` reshape; the `.astype(str)` vs. `.astype("string")` null-handling trap before writing to Delta/Spark. |
-| Guardrail against renamed-table recreation | [`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail) | Why `CREATE TABLE IF NOT EXISTS` is a silent-failure risk after any table rename, and an existence-check guardrail that fails loudly instead. Verified against a live warehouse. |
+| Guardrail against renamed-table recreation | [`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail) | Why `CREATE TABLE IF NOT EXISTS` is a silent-failure risk after any table rename, and an existence-check guardrail that fails loudly instead. Validated with representative test cases. |
 | Report-period dim + fail-loud gate | [`databricks/report-period-dim-and-gate`](databricks/report-period-dim-and-gate) | Single period knob → dim → stop the run if the snapshot month isn’t upstream yet. |
 | OpenPyXL chart face strip (data-only) | [`python-scripts/openpyxl-chart-face-strip`](python-scripts/openpyxl-chart-face-strip) | Overwrite chart source cells only; locked seed vs incomplete feed. |
 | When not to automate a source | [`learning-notes/when-not-to-automate-a-source`](learning-notes/when-not-to-automate-a-source.md) | Mechanical vs judgment hardcodes. |
