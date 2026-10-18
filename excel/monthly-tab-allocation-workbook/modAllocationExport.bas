@@ -14,7 +14,7 @@ Sub GenerateCSV()
     Dim RowCount As Long
     Dim ColCount As Long
     Dim RiskSPI As String
-    Dim RepurchaseSPI As String
+    Dim CategoryBCode As String
     Dim LineCount As Long
     Dim SaveCSV As Workbook
     Dim SavePath As String
@@ -30,10 +30,10 @@ Sub GenerateCSV()
     k = Range("Last_Column").Value
     L = Range("Model_Year").Value
     M = Range("Manufacturer").Value
-    n = Range("GST_SPI").Value
-    p = Range("SET_SPI").Value
-    RiskSPI = Range("Risk_SPI").Value
-    RepurchaseSPI = Range("Repurchase_SPI").Value
+    n = Range("Group_A_Code").Value
+    p = Range("Group_B_Code").Value
+    RiskSPI = Range("CategoryACode").Value
+    CategoryBCode = Range("Category_B_Code").Value
     SavePath = Range("CSV_Save").Value
     WS_Count = ActiveWorkbook.Worksheets.Count
 
@@ -58,17 +58,17 @@ Sub GenerateCSV()
                     If ThisWorkbook.Worksheets(i).Cells(RowCount, ColCount) <> "" And ThisWorkbook.Worksheets(i).Cells(RowCount, ColCount) <> 0 Then
                         If ThisWorkbook.Worksheets(i).Cells(RowCount, ColCount).Font.Color = 0 Then
                             If Range("Use_Row_SPI").Value = "Y" Then
-                                If ThisWorkbook.Worksheets(i).Cells(RowCount, 6) = "GST" Then
+                                If ThisWorkbook.Worksheets(i).Cells(RowCount, 6) = "GROUP_A" Then
                                     Worksheets("CSV").Cells(LineCount, 1).Value = n
-                                ElseIf ThisWorkbook.Worksheets(i).Cells(RowCount, 6) = "SET" Then
+                                ElseIf ThisWorkbook.Worksheets(i).Cells(RowCount, 6) = "GROUP_B" Then
                                     Worksheets("CSV").Cells(LineCount, 1).Value = p
                                 Else
                                     Worksheets("CSV").Cells(LineCount, 1).Value = "UNKNOWN"
                                 End If
-                            ElseIf ThisWorkbook.Worksheets(i).Cells(6, ColCount) = "RISK" Then
+                            ElseIf ThisWorkbook.Worksheets(i).Cells(6, ColCount) = "CATEGORY_A" Then
                                 Worksheets("CSV").Cells(LineCount, 1).Value = RiskSPI
-                            ElseIf ThisWorkbook.Worksheets(i).Cells(6, ColCount) = "REPURCHASE" Then
-                                Worksheets("CSV").Cells(LineCount, 1).Value = RepurchaseSPI
+                            ElseIf ThisWorkbook.Worksheets(i).Cells(6, ColCount) = "CATEGORY_B" Then
+                                Worksheets("CSV").Cells(LineCount, 1).Value = CategoryBCode
                             Else
                                 Worksheets("CSV").Cells(LineCount, 1).Value = "UNKNOWN"
                             End If
@@ -113,7 +113,7 @@ Sub TotalAllocation()
     Dim RowCount As Long
     Dim ColCount As Long
     Dim RiskSPI As String
-    Dim RepurchaseSPI As String
+    Dim CategoryBCode As String
     Dim LineCount As Long
     Dim SavePath As String
     Dim re As Object
@@ -133,8 +133,8 @@ Sub TotalAllocation()
     j = Range("First_Column").Value
     k = Range("Last_Column").Value
     L = Range("Model_Year").Value
-    RiskSPI = Range("Risk_SPI").Value
-    RepurchaseSPI = Range("Repurchase_SPI").Value
+    RiskSPI = Range("CategoryACode").Value
+    CategoryBCode = Range("Category_B_Code").Value
     SavePath = Range("CSV_Save").Value
 
     On Error Resume Next
