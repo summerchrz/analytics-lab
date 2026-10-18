@@ -1,0 +1,160 @@
+# Pattern Index
+
+This file is the detailed catalog of focused patterns in `analytics-lab`.
+
+The root [README](README.md) stays intentionally short and recruiter-friendly. This index is for deeper technical browsing.
+
+### Start Here — What Each Pattern Actually Does
+
+**[`sql-patterns/snapshot-mom-attrition-tall-layers`](sql-patterns/snapshot-mom-attrition-tall-layers)**
+Infers “exits” from a periodic inventory snapshot (on prior month-end, gone
+from *all* locations on current) when you lack a clean exit-event table at
+the right grain, then rolls origin–destination moves to location in/out and
+`UNION ALL`s stock + adds + exits + moves into one tall table so a dashboard
+can share month/location/attribute filters. Breaks when a month-end snap is
+missing (false mass exits), when you chart national move net (≈0 in a closed
+system), or when you sum a overloaded measure across layers (item counts vs
+trip counts in the same column).
+
+**[`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline)**
+Takes several differently-shaped data sources and merges them into one clean,
+long-format reporting table — using real actuals for past months and
+forecast numbers for future months, with a single date deciding where the
+switch happens. Two wide, spreadsheet-style tables get flattened into rows,
+their inconsistent month labels get mapped to real dates, a third daily-log
+source gets rolled up to match, and everything lands in one shared table via
+`UNION ALL`. This one deliberately keeps two real bugs instead of hiding
+them: an annual total column gets mistaken for "December" and inflates it,
+and a similarly-purposed column in the sibling table isn't recognized at
+all and silently disappears from the output — no error, just missing data.
+`pipeline_fixed.sql` shows the proposed correction: one shared lookup table
+instead of two mapping rules that can drift apart, non-monthly columns kept
+clearly separate, and an explicit check that fails loudly on an unrecognized
+label instead of quietly returning nothing.
+
+**[`databricks/lateral-view-stack-unpivot`](databricks/lateral-view-stack-unpivot)**
+Shows a second way to turn columns into rows — for when you already have a
+handful of calculated numbers (like `SUM(returns)`, `SUM(damaged)`) in one
+query and want them as separate rows, rather than unpivoting a whole source
+table. Explains when to reach for this instead of `UNPIVOT`, and the main way
+it breaks: you tell it how many label/value pairs to expect
+(`STACK(3, ...)`), and if that number gets out of sync with what you
+actually pass in, the results silently misalign.
+
+**[`databricks/point-in-time-active-count`](databricks/point-in-time-active-count)**
+Counts how many items were "active" as of a specific date, using a simple
+comparison (`add_date < snapshot_date`) against a table that already stores
+one row per item per day. The important catch: this formula only works
+because the source table is a true snapshot — an item that leaves inventory
+just stops showing up in later rows. If the source were an event log
+instead (permanent rows with separate "removed" dates), this same formula
+would overcount, since you'd also need to check the item hadn't been removed
+yet. Called out explicitly because it's the kind of assumption that's
+obvious to whoever wrote it and invisible to whoever inherits it later.
+
+**[`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy)**
+Shows the habit of copying a table you don't own (a vendor feed, another
+team's export) into your own schema before doing any real work against it —
+instead of building every downstream query directly on top of someone
+else's table. The key detail is a table property,
+`delta.columnMapping.mode = 'name'`, set at copy time: it lets you rename or
+drop columns on your copy later as a cheap, instant metadata change instead
+of an expensive full-table rewrite, which matters a lot once you want to fix
+a bad source column name (like the trailing-space labels in the blended
+pipeline pattern above) without breaking every query that already reads it.
+
+**[`tableau/duplicated-lod-per-dimension-value`](tableau/duplicated-lod-per-dimension-value)**
+The Tableau-layer version of the "hand-written mapping that drifts" problem:
+instead of one calculation that takes a region/segment as an input, someone
+copy-pasted a near-identical LOD calculation once per region, each with a
+different hardcoded filter value baked in. Works fine until the shared
+logic needs to change (now it's N edits, not one) or a region gets missed.
+Fix: a single parameter-driven calculation, or — better, if you just need
+one row per region — push the aggregation back into the SQL layer instead
+of reproducing a `GROUP BY` by hand in Tableau.
+
+**[`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year)**
+A common way to build "this month vs. same month last year": a table
+calculation that looks a fixed number of *rows* back
+(`LOOKUP(SUM([x]), -12)`). Explains why that's a row-position offset, not a
+real date offset — so it silently breaks the moment a filter, sort change,
+or gap makes row position stop lining up with calendar months — and shows
+the more robust alternative (explicit date-based LOD comparison instead of
+row lookup).
+
+**[`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail)**
+Covers a failure mode that's easy to miss in review: `CREATE TABLE IF NOT
+EXISTS` doesn't error when its target table is missing — it just silently
+creates a brand-new, empty one under that name. So if a table is ever
+renamed and even one leftover reference (often in a different
+notebook/job than the one being actively edited during the cutover) still
+uses the old name guarded by that clause, every write after the rename
+lands in a disconnected orphan table. The job keeps reporting SUCCESS; the
+real table just quietly stops updating, with nothing to flag it. Fix: an
+explicit existence check before writing, that fails loudly instead of
+letting `IF NOT EXISTS` paper over a missing/renamed target.
+
+**[`databricks/report-period-dim-and-gate`](databricks/report-period-dim-and-gate)**
+One reporting-period knob → dim lookup → fail-loud checks before any
+staging/Excel write. Shows why a dry run on the *next* template with the
+*last closed* period is different from forcing an open period through the
+gate when upstream has zero rows for that snapshot month.
+
+**[`python-scripts/openpyxl-chart-face-strip`](python-scripts/openpyxl-chart-face-strip)**
+Write only the category/value cells a template chart already points at —
+don’t recreate the chart in openpyxl (formatting reset). Also documents
+when to use a **locked published seed** instead of computing face values
+from an incomplete live feed.
+
+**[`learning-notes/when-not-to-automate-a-source`](learning-notes/when-not-to-automate-a-source.md)**
+Mechanical hardcodes (automate) vs judgment/published locks (don’t
+auto-refresh) — short decision note paired with the two patterns above.
+
+**[`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table)**
+Turns a spreadsheet export from a legacy BI/OLAP tool — the kind with
+stacked header rows, blank spacer columns, and no single clean header row —
+into a tidy, typed table ready to write into Delta/Spark. Walks through
+finding the one reliably-populated column to filter on, reshaping
+wide-to-long with `.melt()`, and the two write-time traps that actually
+matter: a genuinely mixed-type column (some rows `0`, some blank, same
+real meaning) will fail an Arrow conversion unless fixed first, and
+`.astype(str)` is the wrong fix for that — it silently turns real missing
+values into the literal text `"<NA>"` — where pandas' nullable `"string"`
+dtype does it correctly.
+
+**[`powerpoint/slide-show-countdown-timer`](powerpoint/slide-show-countdown-timer)**
+A slide-show countdown that writes `HH:MM:SS` into a named shape
+(`TimerBox`) every second using a Windows `SetTimer` callback — more
+reliable during full-screen slide show than `Application.OnTime`. Supports
+duration mode (default/max 2:55:00) and end-time mode, with shape lookup
+across current slide, layout, and master.
+
+**[`excel/monthly-tab-allocation-workbook`](excel/monthly-tab-allocation-workbook)**
+VBA pipeline for workbooks with one worksheet per month: regex-filtered tab
+processing, zero-column hide, CSV flatten export, total-allocation
+consolidation, dictionary dedup with normalized delivery-month keys, trim vs
+no-trim rollup, adds-by-month matrix, and Tableau `SUMIFS` formula bridge
+frozen to values.
+
+### Quick Reference
+
+| Pattern | Location | What it demonstrates |
+|---|---|---|
+| Blended actuals + forecast reporting pipeline | [`databricks/blended-actuals-forecast-pipeline`](databricks/blended-actuals-forecast-pipeline) | Wide-to-long `UNPIVOT` + label normalization, `CASE`-based categorization, canonical schema alignment via `UNION ALL`, actuals/forecast cutoff blending. Includes a deliberately buggy version (annual-column bleed + silent NULL-drop, both verified) and a proposed fixed version (shared lookup table, verified). |
+| Unpivoting named measures with `LATERAL VIEW STACK` | [`databricks/lateral-view-stack-unpivot`](databricks/lateral-view-stack-unpivot) | When to use `STACK` vs. `UNPIVOT`; pitfalls of the `STACK(n, ...)` count parameter. |
+| Point-in-time "active as of" count | [`databricks/point-in-time-active-count`](databricks/point-in-time-active-count) | Counting active items from a periodic snapshot table; the critical assumption that makes the formula correct (snapshot vs. event-log source shape). |
+| Schema-stable staging copy | [`databricks/schema-stable-staging-copy`](databricks/schema-stable-staging-copy) | Staging a copy of a table you don't own with `delta.columnMapping.mode = 'name'` so column renames/cleanup later are cheap metadata operations, not full-table rewrites. Verified against a live warehouse. |
+| Duplicated LOD calc per dimension value | [`tableau/duplicated-lod-per-dimension-value`](tableau/duplicated-lod-per-dimension-value) | Anti-pattern: one near-identical LOD calculation copy-pasted per region/segment instead of parameterized. Fix: single parameter-driven calc, or push the aggregation into SQL. |
+| `LOOKUP(..., -12)` year-over-year comparison | [`tableau/lookup-offset-year-over-year`](tableau/lookup-offset-year-over-year) | Why row-position table calc offsets silently break under sort/filter changes, and the more robust explicit date-based LOD alternative. |
+| Messy BI-tool export → tidy table | [`python-scripts/messy-bi-export-to-tidy-table`](python-scripts/messy-bi-export-to-tidy-table) | Parsing a multi-header, spacer-column spreadsheet export with no stable header row; `.melt()` reshape; the `.astype(str)` vs. `.astype("string")` null-handling trap before writing to Delta/Spark. |
+| Guardrail against renamed-table recreation | [`databricks/renamed-table-recreation-guardrail`](databricks/renamed-table-recreation-guardrail) | Why `CREATE TABLE IF NOT EXISTS` is a silent-failure risk after any table rename, and an existence-check guardrail that fails loudly instead. Verified against a live warehouse. |
+| Report-period dim + fail-loud gate | [`databricks/report-period-dim-and-gate`](databricks/report-period-dim-and-gate) | Single period knob → dim → stop the run if the snapshot month isn’t upstream yet. |
+| OpenPyXL chart face strip (data-only) | [`python-scripts/openpyxl-chart-face-strip`](python-scripts/openpyxl-chart-face-strip) | Overwrite chart source cells only; locked seed vs incomplete feed. |
+| When not to automate a source | [`learning-notes/when-not-to-automate-a-source`](learning-notes/when-not-to-automate-a-source.md) | Mechanical vs judgment hardcodes. |
+| Slide show countdown timer | [`powerpoint/slide-show-countdown-timer`](powerpoint/slide-show-countdown-timer) | Windows `SetTimer` callback during slide show; duration vs. end-time modes; named-shape text updates across slide/layout/master. |
+| Monthly-tab allocation workbook | [`excel/monthly-tab-allocation-workbook`](excel/monthly-tab-allocation-workbook) | Month-tab regex filter, CSV export, dedup rollup, adds-by-month pivot, Tableau SUMIFS bridge; config via named ranges. |
+
+Each pattern folder is self-contained and runnable standalone (inline
+synthetic data via `VALUES`, no external tables) and includes a README with
+the pattern explanation, when to use it, common pitfalls, and a verification
+note confirming it was actually run against a live Databricks SQL warehouse.
