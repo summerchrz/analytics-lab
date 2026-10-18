@@ -203,14 +203,54 @@ flagged needs manual review — don't bypass it.
 Hook path is configured via:
 
 ```
-git config core.hooksPath .githooks
+Supply chain
+    ↓
+regulatory master data / data quality
+    ↓
+fleet logistics / process improvement
+    ↓
+automation / API / VBA
+    ↓
+operations research / fleet planning
+    ↓
+SQL + Databricks + Python
+    ↓
+analytics engineering
 ```
 
-**Note:** `core.hooksPath` is a local git config setting — it does **not** travel
-with the repo. If you clone this fresh on another machine, re-run the command
-above before committing anything.
+The tools changed. The core habit did not: understand messy operational systems well enough to make the data more trustworthy and the workflow more maintainable.
 
-This is a **defense-in-depth measure, not a substitute for genericizing
-content before committing.** Scanners catch known patterns; they won't catch
-everything (e.g. a business rule described in plain English with no
-recognizable keyword).
+## Repository map
+
+- [databricks/](databricks) — lakehouse and Spark SQL patterns
+- [python-scripts/](python-scripts) — cleanup, automation, and analysis
+- [tableau/](tableau) — BI-layer calculations and anti-patterns
+- [excel/](excel) — workbook/VBA automation
+- [powerpoint/](powerpoint) — presentation automation
+- [sql-patterns/](sql-patterns) — reusable SQL techniques
+- [case-studies/](case-studies) — problem → reasoning → solution write-ups
+- [ai-building/](ai-building) — AI-assisted development notes
+- [learning-notes/](learning-notes) — skills map and technical learning notes
+
+## Working principles
+
+- **Respect the grain.** Many analytics bugs are really grain or join problems wearing a costume.
+- **Fail loudly.** A visible error is safer than a plausible wrong number.
+- **Put logic where it belongs.** Reporting tools should present data, not become accidental transformation platforms.
+- **Prefer reusable patterns to one-off fixes.**
+- **Validate across layers.** Source, transformation, and reporting should reconcile.
+- **Document assumptions and boundary conditions.**
+- **Use AI to accelerate understanding, not replace it.**
+- **Sanitize before sharing.**
+
+## Privacy and sanitization
+
+Some ideas in this repository originate from real-world analytical problems. They are rebuilt using generic naming and synthetic or generalized examples.
+
+This repository must never contain real company or customer data, internal table/schema names, credentials, tokens, hostnames, connection strings, confidential business logic, or identifiable screenshots/exports.
+
+A local gitleaks pre-commit hook provides an additional safety check. It is defense in depth, not a substitute for thoughtful sanitization.
+
+---
+
+> I want this portfolio to show that I can take a messy analytical problem, understand its data shape, isolate the brittle assumption, decide where the logic belongs, build a safer version, and explain why it works.
