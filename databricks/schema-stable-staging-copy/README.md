@@ -17,9 +17,7 @@ every downstream query means:
   refresh schedule changes, permissions tighten, or (worst case) a personal
   schema gets deprovisioned when its owner's account is deactivated — it
   breaks you directly, with no layer of insulation.
-- **The "departed owner" case is the urgent version of this problem**: the
-  clock is often already running (an account deactivation date, a schema
-  cleanup), and nobody may notice a migration is needed until something
+- **The decommissioning case is the urgent version of this problem**: the source may have a known retirement or cleanup date, and downstream dependencies are easy to miss a migration is needed until something
   breaks. Treat "someone left and I depend on their personal tables" as a
   trigger to run this pattern proactively, not just for tables you happen to
   be refactoring anyway.
