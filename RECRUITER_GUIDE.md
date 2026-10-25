@@ -55,7 +55,7 @@ Senior fleet analytics professional working across SQL, Azure Databricks, Python
 
 [Career story](CAREER_STORY.md) traces the progression from supply-chain operations and process improvement into data quality, automation, operations research, senior analytics, and analytics-engineering-shaped work.
 
-Selected measurable outcomes include reducing a recurring payment workflow from roughly **80 hours to 10 hours per week**, supporting more than **$1.2M in submitted claims**, and contributing to more than **$100K in operational savings**.
+Selected measurable outcomes include reducing a recurring payment workflow from roughly **80 hours to 10 hours per week**, supporting more than **$1.2M in submitted claims**, and contributing to more than **$500K in operational savings**.
 
 ## What differentiates the portfolio
 

@@ -30,7 +30,7 @@ Examples include:
 
 - building a new insurance claim / warranty process and supporting more than **$1.2M in submitted claims**
 - reducing towing cycle time with templates and workflow automation
-- developing a towing SOP and related process improvements that contributed to more than **$100K in operational savings**, including **$11K on a single tow**
+- developing a towing SOP and related process improvements that contributed to more than **$500K in operational savings**, including **$11K on a single tow**
 - redesigning repetitive payment workflows
 
 This stage is where process improvement and analytics began to merge.
@@ -74,7 +74,7 @@ A few examples of measurable outcomes across the career path:
 
 - reduced a recurring payment process from about **80 hours to 10 hours per week**
 - supported more than **$1.2M in submitted claims**
-- contributed to more than **$100K in operational savings**
+- contributed to more than **$500K in operational savings**
 - built analytical and automation tools used across operational workflows
 
 ## Technical progression
