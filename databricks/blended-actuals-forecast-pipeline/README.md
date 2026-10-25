@@ -101,7 +101,7 @@ query runs successfully.
 
 ## Verified
 
-Ran end-to-end against a live Databricks SQL warehouse:
+Verified end-to-end in Databricks SQL using the inline synthetic data:
 - Validation 1: actuals sources end at `2025-11-01`, forecast starts exactly
   at the `2025-12-01` cutoff, no overlapping or missing months.
 - Validation 2 / Bug 1: December totals confirmed inflated by the exact
